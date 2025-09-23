@@ -13,6 +13,8 @@ const pavlovia_finish = {
 const jsPsych = initJsPsych({
 });
 
+const timeline = []; // Creates empty array to fill with procedure
+
 // Demographics survey: a block for entering age, gender, and race
 var demographics_age = {
   type: jsPsychSurveyText,
