@@ -17,7 +17,25 @@ const timeline = []; // Creates empty array to fill with procedure
 
 timeline.push(pavlovia_init)
 
-// COPY IN THE LIKERT SCALE SLIDES FROM: https://www.jspsych.org/v7/plugins/survey-likert/#__tabbed_2_1
+// var likert_scale = [
+  "Strongly Disagree", 
+  "Disagree", 
+  "Neutral", 
+  "Agree", 
+  "Strongly Agree"
+];
+
+var trial = {
+  type: jsPsychSurveyLikert,
+  questions: [
+    {prompt: "I could experiencing some emotion and not be concious of it until some time later. .", name: 'Emotion', labels: likert_scale},
+    {prompt: "I break or spill things because of carelessness, not paying attention, or thinking of something else.", name: 'Carelessness', labels: likert_scale},
+    {prompt: "I find it difficult to stay focused on whats happening in the present.", name: 'Focus', labels: likert_scale},
+     {prompt: "I tend to walk quickly to get where I’m going without paying attention to what I experience along the way.", name: 'Walking', labels: likert_scale},
+{prompt: "I tend not to notice feelings of physical tension or discomfort until they really grab my attention.", name: 'Feelings', labels: likert_scale},
+  ],
+  randomize_question_order: true
+};
 
 // Demographics survey: a block for entering age, gender, and race
 var demographics_age = {
