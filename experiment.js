@@ -17,6 +17,8 @@ const timeline = []; // Creates empty array to fill with procedure
 
 timeline.push(pavlovia_init)
 
+// COPY IN THE LIKERT SCALE SLIDES FROM: https://www.jspsych.org/v7/plugins/survey-likert/#__tabbed_2_1
+
 // Demographics survey: a block for entering age, gender, and race
 var demographics_age = {
   type: jsPsychSurveyText,
