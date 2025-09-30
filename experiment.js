@@ -16,7 +16,32 @@ const pavlovia_finish = {
 const jsPsych = initJsPsych({
 });
 
+const image_files = [
+  'images/Blue_Circle.png',
+  'images/Blue_Triangle.png',
+  'images/Red_Circle.png',
+  'images/Red_Triangle.png',
+  ];
+
+
 const timeline = []; // Creates empty array to fill with procedure
+
+// Visual search trials
+var vs_instructions = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus: `<p>Press E if there is an elephant in the group.</p>
+    <p>Press N if there is no elephant in the group.</p>`,
+  choices: ['Continue']
+}
+
+var vs_trial = {
+  type: jsPsychVisualSearchCircle,
+  stimuli: [image_files[0], image_files[1], image_files[2], image_files[3]],
+  fixation_image: '+',
+  target_present_key: 'f',
+  target_absent_key: 'j',
+  target_present: true
+}
 
 var likert_scale = [
   "Strongly Disagree", 
@@ -112,12 +137,15 @@ timeline.push(pavlovia_init)
 // Preload audio files from above to play later without lag
 timeline.push({
   type: jsPsychPreload,
-  audio: [audio_files, sample_tone_file],
+  audio: [image_files],
   data: {
-    phase: 'audio_preload'
+    phase: 'image_preload'
   }
 });
 
+// Put the visual search trial here
+timeline.push(vs_instructions);
+timeline.push(vs_trial);
 
 timeline.push(demographics_age);
 timeline.push(demographics_gender);
