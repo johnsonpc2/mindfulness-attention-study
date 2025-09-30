@@ -1,23 +1,24 @@
+//// We will first define all the things we'll use, and then we will push them to the timeline so they will be executed when subjects start the experiment
+
 // First, we need to initialize jsPsych to run with Pavlovia
 const pavlovia_init = {
   type: jsPsychPavlovia,
   command: "init"
 };
 
-
+// And we will also need to close everything when we're done
 const pavlovia_finish = {
   type: jsPsychPavlovia,
   command: "finish"
 };
 
+// This initializes jsPsych itself
 const jsPsych = initJsPsych({
 });
 
 const timeline = []; // Creates empty array to fill with procedure
 
-timeline.push(pavlovia_init)
-
-// var likert_scale = [
+var likert_scale = [
   "Strongly Disagree", 
   "Disagree", 
   "Neutral", 
@@ -25,7 +26,7 @@ timeline.push(pavlovia_init)
   "Strongly Agree"
 ];
 
-var trial = {
+var mindfulness_survey = {
   type: jsPsychSurveyLikert,
   questions: [
     {prompt: "I could experiencing some emotion and not be concious of it until some time later. .", name: 'Emotion', labels: likert_scale},
@@ -102,6 +103,11 @@ var demographics_race = {
   data: {
     phase: 'demographics_race'
   }};
+
+//// Now that we've defined everything, we can start pushing things to the timeline that subjects will see
+
+// First, we push the initialization to the timeline to kick everything off
+timeline.push(pavlovia_init)
 
 timeline.push(demographics_age);
 timeline.push(demographics_gender);
