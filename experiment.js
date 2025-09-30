@@ -109,6 +109,16 @@ var demographics_race = {
 // First, we push the initialization to the timeline to kick everything off
 timeline.push(pavlovia_init)
 
+// Preload audio files from above to play later without lag
+timeline.push({
+  type: jsPsychPreload,
+  audio: [audio_files, sample_tone_file],
+  data: {
+    phase: 'audio_preload'
+  }
+});
+
+
 timeline.push(demographics_age);
 timeline.push(demographics_gender);
 timeline.push(demographics_gender_other);
