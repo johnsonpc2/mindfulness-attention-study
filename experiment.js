@@ -44,11 +44,12 @@ var vs_trial = {
 }
 
 var likert_scale = [
-  "Strongly Disagree", 
-  "Disagree", 
-  "Neutral", 
-  "Agree", 
-  "Strongly Agree"
+  "Almost Always", 
+  "Very Frequently", 
+  "Somewhat Frequently", 
+  "Somewhat Infrequently", 
+  "Very Infrequently",
+  "Almost Never",
 ];
 
 var mindfulness_survey = {
@@ -60,7 +61,40 @@ var mindfulness_survey = {
      {prompt: "I tend to walk quickly to get where I’m going without paying attention to what I experience along the way.", name: 'Walking', labels: likert_scale},
 {prompt: "I tend not to notice feelings of physical tension or discomfort until they really grab my attention.", name: 'Feelings', labels: likert_scale},
   ],
-  randomize_question_order: true
+  {prompt:"I forget a person’s name almost as soon as I’ve been told it for the first time.", name: 'Names', labels: likert_scale},
+  ],
+  {prompt:"It seems I am “running on automatic,” without much awareness of what I’m doing.", name: 'Automatic', labels: likert_scale},
+  ],
+   {prompt:"I rush through activities without being really attentive to them.", name: 'Rush', labels: likert_scale},
+  ],
+  {prompt:"I get so focused on the goal I want to achieve that I lose touch with what I’m doing right now to get there.", name: 'Now', labels: likert_scale},
+   {prompt:"I do jobs or tasks automatically, without being aware of what I'm doing.", name: 'Tasks', labels: likert_scale},
+   {prompt:"I find myself listening to someone with one ear, doing something else at the same time.", name: 'Multitasking', labels: likert_scale},
+   {prompt:"I drive places on ‘automatic pilot’ and then wonder why I went there.", name: 'Driving', labels: likert_scale}
+   {prompt:"I find myself preoccupied with the future or the past.", name: 'Preoccupied', labels: likert_scale},
+   {prompt:"I find myself doing things without paying attention.", name: 'Attention', labels: likert_scale},
+   {prompt:"I snack without being aware that I’m eating.", name: 'Eat', labels: likert_scale},
+
+var likert_scale = [
+  "Strongly Agree", 
+  "Agree", 
+  "Slightly Agree", 
+  "Neither agree nor disagree", 
+  "Slightly Disagree",
+  "Disagree",
+  "Strongly Disagree", 
+];
+
+var Satisfaction_Survery = {
+  type: jsPsychSurveyLikert,
+  questions: [
+    {prompt: "In most ways my life is close to my ideal.", name: 'Ideal', labels: likert_scale},
+    {prompt: "The conditions of my life are excellent.", name: 'Conditions', labels: likert_scale},
+ {prompt: "I am satisfied with my life", name: 'Satified', labels: likert_scale},
+ {prompt: "So far I have gotten the important things I want in life.", name: 'Important', labels: likert_scale},
+{prompt: "If I could live my life over, I would change almost nothing.", name: 'Change', labels: likert_scale}, 
+
+randomize_question_order: true
 };
 
 // Demographics survey: a block for entering age, gender, and race
