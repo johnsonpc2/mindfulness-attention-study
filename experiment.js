@@ -14,8 +14,37 @@ const pavlovia_finish = {
 
 // This initializes jsPsych itself
 const jsPsych = initJsPsych({
+  minimum_valid_rt: 200,
+  on_finish: function() {
+    // Calculate proportion correct for visual search trials
+    var visual_search_trials = jsPsych.data.get().filter({type: jsPsychVisualSearchCircle});
+    var correct_trials = visual_search_trials.filter({correct: true});
+    var proportion_correct = correct_trials.count() / visual_search_trials.count();
+    
+    // Calculate average response time for visual search trials
+    var average_rt = visual_search_trials.select('rt').mean();
+    
+    // Calculate average RT per block
+    var average_rt_per_block = {};
+    for (var block = 0; block < NumBlocks; block++) {
+      var block_trials = visual_search_trials.filter({block: block});
+      if (block_trials.count() > 0) {
+        average_rt_per_block['block_' + block + '_avg_rt'] = block_trials.select('rt').mean();
+      }
+    }
+    
+    // Add to data
+    jsPsych.data.get().addToLast({
+      total_visual_search_trials: visual_search_trials.count(),
+      correct_visual_search_trials: correct_trials.count(),
+      proportion_correct: proportion_correct,
+      average_rt: average_rt,
+      ...average_rt_per_block
+    });
+  }
 });
 
+// Define the stimuli in their own object
 const image_files = [
   'images/Blue_Circle.png',
   'images/Blue_Triangle.png',
@@ -24,23 +53,33 @@ const image_files = [
   'images/fixation_cross.png'
 ];
 
-const timeline = []; // Creates empty array to fill with procedure
-
-var red_circle = image_files[2];
-var red_triangle = image_files[3];
+// Store the stimuli in their own objects for easier reference later
 var blue_circle = image_files[0];
 var blue_triangle = image_files[1];
+var red_circle = image_files[2];
+var red_triangle = image_files[3];
 var fixation_cross = image_files[4];
 
+// Create empty arrays to fill with the timeline and the visual search exposure task
+const timeline = [];
 var exposure = [];
+
+// These are the basic settings for how the visual search task blocks will be constructed
 var NumBlocks = 20;
+var BreakSlide = 2; // Insert a break slide after every X blocks
 var StimSetSize = [3, 6, 9];
 var Target = ['present', 'absent'];
 
-// red_blue_mix as an array of the variables
-var red_blue_mix = [red_circle, blue_circle];
+// red_blue_mix as an array of all the distractors
+var red_blue_mix = [red_circle, blue_circle, blue_triangle];
 var Distractor = [red_circle, blue_triangle, red_blue_mix];
 var DistractorNames = ['red_circle', 'blue_triangle', 'red_blue_mix'];
+
+// This isn't strictly necessary, but it serves as a small attention check just to make sure they haven't totally tuned out... I'm also extra.
+// Available keys for break slides (excluding f and j which are used for the task)
+var available_keys = ['a', 'b', 'c', 'd', 'e', 'g', 'h', 'i', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+var shuffled_keys = jsPsych.randomization.sampleWithoutReplacement(available_keys, available_keys.length);
+var key_index = 0;
 
 // Create trials for each block
 for (var block = 0; block < NumBlocks; block++) {
@@ -54,7 +93,7 @@ for (var block = 0; block < NumBlocks; block++) {
         // Build the stimuli array based on condition
         var stimuli = [];
         
-        // Add target if present
+        // Add the red triangle target if it is a "present" trial
         if (Target[j] === 'present') {
           stimuli.push(red_triangle);
         }
@@ -65,7 +104,7 @@ for (var block = 0; block < NumBlocks; block++) {
         // Handle red_blue_mix differently (it's an array)
         if (Array.isArray(Distractor[k])) {
           for (var d = 0; d < num_distractors; d++) {
-            // Randomly pick from red or blue circle for mixed condition
+            // Randomly pick from red or blue circle/triangle for mixed condition
             var random_distractor = Distractor[k][Math.floor(Math.random() * Distractor[k].length)];
             stimuli.push(random_distractor);
           }
@@ -81,13 +120,14 @@ for (var block = 0; block < NumBlocks; block++) {
           fixation_image: fixation_cross,
           fixation_duration: 1500,
           target_present: Target[j] === 'present',
-          target_present_key: 'e',
-          target_absent_key: 'n',
-          target_size: [350, 350],
+          target_present_key: 'f',
+          target_absent_key: 'j',
+          target_size: [400, 400],
           data: {
             set_size: StimSetSize[i],
             distractor_type: DistractorNames[k],
-            block: block
+            block: block,
+            stimuli_list: stimuli.slice()  // Save a copy of the stimuli array
           }
         };
         
@@ -96,18 +136,51 @@ for (var block = 0; block < NumBlocks; block++) {
     }
   }
   
-  // Randomize trials within this block
-  block_trials = jsPsych.randomization.shuffle(block_trials);
+  // Keep shuffling until no consecutive trials have the same distractor type
+  var hasConsecutive = true;
+  while (hasConsecutive) {
+    block_trials = jsPsych.randomization.shuffle(block_trials);
+    hasConsecutive = false;
+    
+    // Check if any consecutive trials have the same distractor type
+    for (var i = 0; i < block_trials.length - 1; i++) {
+      if (block_trials[i].data.distractor_type === block_trials[i + 1].data.distractor_type) {
+        hasConsecutive = true;
+        break;
+      }
+    }
+  }
   
   // Add to main exposure array
   exposure = exposure.concat(block_trials);
+  
+  // Add a break slide after every BreakSlide blocks (but not after the last block)
+  if ((block + 1) % BreakSlide === 0 && block < NumBlocks - 1) {
+    var break_key_lower = shuffled_keys[key_index];
+    var break_key_upper = break_key_lower.toUpperCase();
+    key_index++;
+    
+    var break_slide = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: `<p>Great job so far! Please rest for a few seconds before continuing.</p>
+                 <p>Press the <strong>${break_key_upper}</strong> button on your keyboard to continue.</p>`,
+      choices: [break_key_lower],
+      data: {
+        phase: 'break',
+        break_key: break_key_upper
+      }
+    };
+    
+    exposure.push(break_slide);
+  }
 }
+
 console.log('Total trials:', exposure.length);
 
 var instructions = {
   type: jsPsychHtmlButtonResponse,
-  stimulus: `<p>Press E if there is a red triangle in the group.</p>
-    <p>Press N if there is no red triangle in the group.</p>`,
+  stimulus: `<p>Press F if there is a red triangle in the group.</p>
+    <p>Press J if there is no red triangle in the group.</p>`,
   choices: ['Continue']
 };
 
@@ -129,7 +202,7 @@ var mindfulness_survey = {
     {prompt: "I tend to walk quickly to get where I'm going without paying attention to what I experience along the way.", name: 'Walking', labels: likert_scale},
     {prompt: "I tend not to notice feelings of physical tension or discomfort until they really grab my attention.", name: 'Feelings', labels: likert_scale},
     {prompt:"I forget a person's name almost as soon as I've been told it for the first time.", name: 'Names', labels: likert_scale},
-    {prompt:"It seems I am "running on automatic," without much awareness of what I'm doing.", name: 'Automatic', labels: likert_scale},
+    {prompt:"It seems I am 'running on automatic,' without much awareness of what I'm doing.", name: 'Automatic', labels: likert_scale},
     {prompt:"I rush through activities without being really attentive to them.", name: 'Rush', labels: likert_scale},
     {prompt:"I get so focused on the goal I want to achieve that I lose touch with what I'm doing right now to get there.", name: 'Now', labels: likert_scale},
     {prompt:"I do jobs or tasks automatically, without being aware of what I'm doing.", name: 'Tasks', labels: likert_scale},
