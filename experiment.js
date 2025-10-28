@@ -309,28 +309,6 @@ timeline.push({
   }
 });
 
-// Put the instructions and visual search trials here
-// Informed Consent
-timeline.push({
-  type: jsPsychInstructions,
-  pages: [// Each new item in the list shows up on a new page
-    "<p style='font-size:1.5vw'>We are researchers at the University at Albany in the Department of Psychology, conducting a research study in which we now invite you to take part. <br><br>The following pages have important information about this study's purpose, what we will ask you to do if you decide to participate, and the way we would like to use the information we gather if you choose to be in the study.</p>",
-    "<p style='font-size:1.5vw'>You are being asked to participate in a research study about music and people's hearing ability. The purpose of this study is to investigate what people prefer and remember about music. Your participation will help us better understand what people notice about music and how people gather and remember information about what they experience in general. <br><br>You will listen to music for about 30 minutes, and then will be asked questions about what you heard. Then, you will answer demographic questions about yourself and share basic information about your hearing. All responses will be anonymous, and we will not collect any data linking your name or identity with your data. <br><br>You will be provided with our contact information in case you have any questions about our research.</p>",
-    "<p style='font-size:1.5vw'>Study participation will take place at a time of your choosing. Once you begin, you will need to complete the study in one sitting. Participation will take approximately 45 minutes. All study procedures will take place online. <br><br>We ask that you complete the study in a quiet environment to minimize distractions. You will have to listen to music throughout this study, please complete the study with headphones or earbuds so you can clearly hear the music played in your web browser.</p>",
-    "<p style='font-size:1.5vw'>The risks associated with this study are no greater than those you might encounter in everyday life. You may experience mild emotional discomfort answering questions about your identity. <br><br>Music will play in your browser throughout the study, and you will be warned in advance to lower the volume of your computer so you don't experience hearing discomfort.<br><br> As with all research, there is a chance that confidentiality of the information we collect from you could be breached; we will take steps to minimize this risk, as discussed in more detail below.</p>",
-    "<p style='font-size:1.5vw'>To minimize the risks to confidentiality, we de-identify all information collected throughout the study. We may share the data we collect from you for use in future research studies or with other researchers; before analyzing any data you provide, we will remove any personally identifiable information. Further, if we share the data you provide as part of this study, we will ensure you cannot be identified before we share it. All data will be stored on secure drives and will be analyzed on password protected computers.</p>",
-    "<p style='font-size:1.5vw'>Participation in this study will involve no cost to you. You will receive 1 credit in extra course credit in exchange for your participation. <br><br>Though there is no direct benefit of taking part in this research besides earning extra credit in your course, the information gathered in this study will help us better understand how people learn from, remember, and form preferences of  their experiences.</p>",
-    "<p style='font-size:1.5vw'>Participation in this study is voluntary. You do not have to answer any question you do not want to answer. If at any time you would like to stop participating, you are free to do so. You may withdraw from this study at any time, and you will not be penalized in any way for deciding to stop participation. <br><br>You may choose not to participate or to stop participating in this research at any time. This will not affect your class standing, grades, employment, or any other aspects of your relationship with the University at Albany.</p>",
-    "<p style='font-size:1.5vw'>If you have questions after participation in this study, you may contact the researchers at pjohnson4@albany.edu (PI), or gecox@albany.edu (Co-PI). <br><br>If you have any questions about your rights as a participant in this research, you can contact the following office at the University at Albany: <br><br>Institutional Review Board <br>University at Albany <br>Office of Regulatory and Research Compliance <br>1400 Washington Ave, ES 244 <br>Albany, NY 12222 <br>Phone: 1-866-857-5459 <br>Email: rco@albany.edu</p>",
-    "<p style='font-size:1.5vw'>I have read this form and the research study has been explained to me. I have been given the opportunity to ask questions and my questions have been answered. If I have additional questions, I have been told whom to contact. By clicking the button below, I agree to participate in the research study described above.</p>"],
-  button_label_next: 'Continue',
-  button_label_previous: 'Go back',
-  show_clickable_nav: true,
-  data: {
-    phase: 'informed_consent'
-  } // Record extra data about the slide.
-});
-
 // General task instructions
 timeline.push({
   type: jsPsychInstructions,
