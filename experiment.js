@@ -333,13 +333,8 @@ const consent = {
     
     // If participant does not consent, redirect to SONA
     if (data.response === 1) {
-      // Show message briefly before redirect
-      jsPsych.endExperiment('You have declined to participate in this study. Thank you for your time. Redirecting you back to SONA...');
-      
-      // Redirect to SONA after 2 seconds
-      setTimeout(function() {
-        window.location.href = 'https://albany.sona-systems.com/';
-      }, 2000);
+      // Redirect to SONA immediately
+      window.location.href = 'https://albany.sona-systems.com/';
     }
   }
 };
