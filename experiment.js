@@ -340,7 +340,7 @@ const consent_check = {
       type: jsPsychHtmlButtonResponse,
       stimulus: '<p>You have declined to participate in this study. Thank you for your time.<br><br>Redirecting you back to SONA...</p>',
       choices: [],
-      trial_duration: 2000,
+      trial_duration: 500,
       on_finish: function() {
         window.location.href = 'https://albany.sona-systems.com/';
       }
