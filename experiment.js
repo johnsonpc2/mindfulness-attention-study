@@ -330,12 +330,27 @@ const consent = {
   on_finish: function(data) {
     // Record which button was pressed (0 = I Agree, 1 = I Do Not Agree)
     data.consented = data.response === 0;
-    
-    // If participant does not consent, redirect to SONA
-    if (data.response === 1) {
-      // Redirect to SONA immediately
-      window.location.href = 'https://albany.sona-systems.com/';
+  }
+};
+
+// Add this conditional check after the consent trial
+const consent_check = {
+  timeline: [
+    {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: '<p>You have declined to participate in this study. Thank you for your time.<br><br>Redirecting you back to SONA...</p>',
+      choices: [],
+      trial_duration: 2000,
+      on_finish: function() {
+        window.location.href = 'https://albany.sona-systems.com/';
+      }
     }
+  ],
+  conditional_function: function() {
+    // Get the data from the last trial (consent)
+    const last_trial = jsPsych.data.get().last(1).values()[0];
+    // Only run this timeline if they did NOT consent
+    return last_trial.response === 1;
   }
 };
 
@@ -464,6 +479,8 @@ timeline.push(pavlovia_init);
 
 // Add this to your timeline
 timeline.push(consent);
+
+timeline.push(consent_check);
 
 // Preload images
 timeline.push({
