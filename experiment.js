@@ -324,7 +324,6 @@ const consent = {
     </div>
   `,
   choices: ['I Agree', 'I Do Not Agree'],
-  button_html: '<button class="jspsych-btn" style="margin: 10px;">%choice%</button>',
   data: {
     phase: 'informed_consent'
   },
