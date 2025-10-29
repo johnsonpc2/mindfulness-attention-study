@@ -177,6 +177,168 @@ for (var block = 0; block < NumBlocks; block++) {
 
 console.log('Total trials:', exposure.length);
 
+const consent = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus: `
+    <div style="max-width: 900px; margin: 0 auto; padding: 20px; text-align: left; line-height: 1.6;">
+      <h1 style="text-align: center; color: #333; font-size: 24px; margin-bottom: 10px;">
+        Informed Consent for Research Participation
+      </h1>
+      <div style="text-align: center; font-size: 20px; color: #555; margin-bottom: 30px; font-style: italic;">
+        The Effects of Mindfulness and Attention on Life Satisfaction and Memory
+      </div>
+      
+      <p style="margin-bottom: 15px;"><strong>University at Albany, State University of New York<br>
+      Department of Psychology</strong></p>
+
+      <div style="background-color: #e8f5e9; border-left: 4px solid #4CAF50; padding: 20px; margin: 20px 0;">
+        <h2 style="margin-top: 0; color: #2e7d32; font-size: 20px;">Key Information</h2>
+        <p style="margin-bottom: 10px;"><strong>What is this study about?</strong> This study explores whether paying attention to the present moment (mindfulness) is related to how satisfied people feel with their lives and the capacity to direct attentional resources to the world around you.</p>
+        <p style="margin-bottom: 10px;"><strong>What will I do?</strong> You will complete an anonymous online survey about your daily attention, mindfulness, and life satisfaction. This includes a visual search task, questionnaires about mindfulness and life satisfaction, personality measures, and demographic questions.</p>
+        <p style="margin-bottom: 10px;"><strong>How long will it take?</strong> Approximately 45 minutes in one sitting.</p>
+        <p style="margin-bottom: 10px;"><strong>What are the risks?</strong> Minimal risk - no greater than everyday life. You may experience mild discomfort when reflecting on your mindfulness or life satisfaction, and potential eye strain from electronic device use.</p>
+        <p style="margin-bottom: 10px;"><strong>What will I receive?</strong> You will receive 1 SONA credit for your participation upon completion of the study.</p>
+        <p style="margin-bottom: 10px;"><strong>Is participation required?</strong> No. Participation is completely voluntary and you may withdraw at any time without penalty.</p>
+      </div>
+
+      <h2 style="color: #555; font-size: 20px; margin-top: 30px; border-bottom: 2px solid #e0e0e0; padding-bottom: 8px;">
+        Researchers and Contact Information
+      </h2>
+      <p style="margin-bottom: 10px;"><strong>Principal Investigator:</strong> Ella M. Bremmer, Undergraduate Student, Department of Psychology, University at Albany<br>
+      Email: ebremmer@albany.edu</p>
+      
+      <p style="margin-bottom: 10px;"><strong>Co-Principal Investigator:</strong> Pierce Johnson, Graduate Assistant, Department of Psychology, University at Albany<br>
+      Email: pjohnson4@albany.edu</p>
+
+      <p style="margin-bottom: 15px;"><strong>Faculty Advisor:</strong> Gregory Cox, PhD, Assistant Professor, Department of Psychology, University at Albany<br>
+      Email: gecox@albany.edu</p>
+
+      <h2 style="color: #555; font-size: 20px; margin-top: 30px; border-bottom: 2px solid #e0e0e0; padding-bottom: 8px;">
+        Purpose of the Study
+      </h2>
+      <p style="margin-bottom: 15px;">Have you ever wondered if being more mindful and paying attention to the present moment could help improve your life satisfaction and ability to focus your attention? This study will explore whether practicing mindfulness and staying aware in everyday life are associated with greater feelings of life satisfaction and attentional control.</p>
+      
+      <p style="margin-bottom: 15px;">Your responses will help researchers understand how mindfulness and attention may relate to overall well-being in college students. The results of this study will help us learn about how mindfulness may be related to experiences at both a large scale (life satisfaction) and small scale (visual attention). By bridging this gap between life satisfaction and basic cognitive mechanisms, our study will help inform mental health professionals, educators, and individuals looking for simple, everyday ways to support their happiness and mental health.</p>
+
+      <h2 style="color: #555; font-size: 20px; margin-top: 30px; border-bottom: 2px solid #e0e0e0; padding-bottom: 8px;">
+        Study Procedures
+      </h2>
+      <p style="margin-bottom: 10px;"><strong>What you will be asked to do:</strong></p>
+      <ul style="margin: 10px 0; padding-left: 25px;">
+        <li style="margin-bottom: 8px;">Complete a visual search task where you will view displays of simple colored shapes and decide whether each display contains a designated "target" object (e.g., a red triangle). The displays will vary in the number of shapes shown and how the objects differ from the target.</li>
+        <li style="margin-bottom: 8px;">Complete the Mindfulness Attention Awareness Scale (MAAS) - questions about how often you pay attention to the present moment</li>
+        <li style="margin-bottom: 8px;">Complete the Satisfaction With Life Scale (SWLS) - questions about how satisfied you feel with your life</li>
+        <li style="margin-bottom: 8px;">Complete the Big 5 Inventory - questions about personality traits</li>
+        <li style="margin-bottom: 8px;">Answer demographic questions (e.g., age, gender, race/ethnicity, student status)</li>
+      </ul>
+      
+      <p style="margin-bottom: 15px;"><strong>Time commitment:</strong> Study participation will take approximately 45 minutes and must be completed in one sitting at a time of your choosing. All study procedures will take place online through the Pavlovia platform.</p>
+      
+      <p style="margin-bottom: 15px;"><strong>Requirements:</strong> You must be at least 18 years old and currently enrolled at UAlbany. You must be able to read and understand English. We ask that you complete the study in a quiet environment to minimize distractions. You may take breaks while completing the survey to reduce the risk of eye strain associated with the use of electronic devices.</p>
+
+      <h2 style="color: #555; font-size: 20px; margin-top: 30px; border-bottom: 2px solid #e0e0e0; padding-bottom: 8px;">
+        Risks and Discomforts
+      </h2>
+      <p style="margin-bottom: 10px;">The risks associated with this study are minimal and no greater than those you might encounter in everyday life. Potential risks include:</p>
+      <ul style="margin: 10px 0; padding-left: 25px;">
+        <li style="margin-bottom: 8px;">Mild discomfort when answering questions reflecting on your mindfulness or life satisfaction</li>
+        <li style="margin-bottom: 8px;">Potential eye strain from using electronic devices (you may take breaks as needed)</li>
+        <li style="margin-bottom: 8px;">Minimal risk of confidentiality breach (see Confidentiality section below for mitigation steps)</li>
+      </ul>
+      
+      <p style="margin-bottom: 15px;">To minimize these risks, you will be clearly informed that you can withdraw from the study at any time without any consequences. You are encouraged to take breaks during the survey as needed.</p>
+
+      <h2 style="color: #555; font-size: 20px; margin-top: 30px; border-bottom: 2px solid #e0e0e0; padding-bottom: 8px;">
+        Benefits
+      </h2>
+      <p style="margin-bottom: 15px;">There is no direct personal benefit to you from participating in this research besides earning SONA credit. However, some participants may find value in reflecting on their own mindfulness, attention, and its impact on life satisfaction through completing this survey.</p>
+      
+      <p style="margin-bottom: 15px;">The information gathered in this study may help advance society's understanding of how mindfulness and attention relate to overall well-being, potentially informing future programs or interventions aimed at improving student mental health and life satisfaction.</p>
+
+      <h2 style="color: #555; font-size: 20px; margin-top: 30px; border-bottom: 2px solid #e0e0e0; padding-bottom: 8px;">
+        Compensation
+      </h2>
+      <p style="margin-bottom: 15px;">Participation in this study will involve no cost to you. You will receive 1 SONA credit in exchange for your participation. SONA credit will be awarded promptly after you complete the survey, via the SONA system.</p>
+      
+      <p style="margin-bottom: 15px;"><strong>Important:</strong> Participants who withdraw before completing the survey will not receive credit. You must complete the study to earn SONA credit. Students who choose not to participate in this study will have the opportunity to participate in other studies on the SONA site for credit, or complete assignments assigned by course instructors to earn research credit.</p>
+
+      <h2 style="color: #555; font-size: 20px; margin-top: 30px; border-bottom: 2px solid #e0e0e0; padding-bottom: 8px;">
+        Confidentiality and Data Management
+      </h2>
+      <p style="margin-bottom: 15px;"><strong>Protection of your identity:</strong> All responses will be anonymous. We will not collect any identifying information or link your name or identity with your responses. To minimize risks to confidentiality, all information collected throughout the study is de-identified.</p>
+      
+      <p style="margin-bottom: 15px;"><strong>Data storage:</strong> All data will be collected anonymously via jsPsych/Pavlovia, which both use encryption to protect information. Only the student researcher (Ella Bremmer), graduate student mentor (Pierce Johnson), and faculty advisor (Gregory Cox) will have password-protected access to the data. Data will be stored on secure, university-approved devices. Data will be retained for five years following the completion of the study, in accordance with university policies.</p>
+      
+      <p style="margin-bottom: 15px;"><strong>Future use of data:</strong> The anonymous dataset may be shared with authorized university personnel or collaborators for research purposes only, with no identifying information included. Before analyzing or sharing any data you provide, we will ensure that no identifying information is present. After identifiers are confirmed to be removed, the data could be used for future research studies or distributed to another investigator for future research studies without additional informed consent from you.</p>
+      
+      <p style="margin-bottom: 15px;"><strong>Data destruction:</strong> After the five-year retention period, all electronic data files will be permanently deleted and any physical materials destroyed to ensure confidentiality.</p>
+      
+      <p style="margin-bottom: 15px;"><strong>Identification in reports:</strong> You will not be identified in any reports or publications resulting from this research.</p>
+
+      <h2 style="color: #555; font-size: 20px; margin-top: 30px; border-bottom: 2px solid #e0e0e0; padding-bottom: 8px;">
+        Voluntary Participation and Withdrawal
+      </h2>
+      <p style="margin-bottom: 10px;">Participation in this study is completely voluntary. You have the right to:</p>
+      <ul style="margin: 10px 0; padding-left: 25px;">
+        <li style="margin-bottom: 8px;">Decline to participate without any consequences</li>
+        <li style="margin-bottom: 8px;">Skip any question you do not want to answer</li>
+        <li style="margin-bottom: 8px;">Withdraw from the study at any time without penalty</li>
+      </ul>
+      
+      <p style="margin-bottom: 15px;">Your decision to participate, not participate, or withdraw will not affect your class standing, grades, employment, or any other aspects of your relationship with the University at Albany.</p>
+
+      <h2 style="color: #555; font-size: 20px; margin-top: 30px; border-bottom: 2px solid #e0e0e0; padding-bottom: 8px;">
+        Questions and Contact Information
+      </h2>
+      <div style="background-color: #f0f0f0; padding: 15px; border-left: 4px solid #4CAF50; margin: 20px 0;">
+        <p style="margin-bottom: 10px;"><strong>Questions about the research:</strong></p>
+        <p style="margin-bottom: 10px;">If you have questions about this study now or after participation, you may contact the researchers at:</p>
+        <p style="margin-bottom: 15px;">Principal Investigator: ebremmer@albany.edu<br>
+        Co-Principal Investigator: pjohnson4@albany.edu<br>
+        Faculty Advisor: gecox@albany.edu</p>
+        
+        <p style="margin-bottom: 10px;"><strong>Questions about your rights as a research participant:</strong></p>
+        <p style="margin-bottom: 10px;">If you have questions or concerns about your rights as a participant in this research, you may contact:</p>
+        <p style="margin-bottom: 0;">Institutional Review Board<br>
+        University at Albany<br>
+        Office of Regulatory and Research Compliance<br>
+        1400 Washington Ave, ES 244<br>
+        Albany, NY 12222<br>
+        Phone: 1-866-857-5459<br>
+        Email: rco@albany.edu</p>
+      </div>
+
+      <div style="background-color: #f9f9f9; border: 2px solid #4CAF50; border-radius: 5px; padding: 20px; margin-top: 30px;">
+        <h2 style="margin-top: 0; color: #555; font-size: 20px; border: none; padding: 0;">Statement of Consent</h2>
+        <p style="margin-bottom: 15px;">I have read this form and the research study has been explained to me. I have been given sufficient opportunity to consider whether to participate and to ask questions. I have been provided with contact information for the researchers and the IRB if I have additional questions. I understand that:</p>
+        <ul style="margin: 10px 0 20px 25px; padding: 0;">
+          <li style="margin-bottom: 8px;">My participation is voluntary</li>
+          <li style="margin-bottom: 8px;">I may withdraw at any time without penalty</li>
+          <li style="margin-bottom: 8px;">My responses will be kept confidential and anonymous</li>
+          <li style="margin-bottom: 8px;">My data may be used for future research after identifiers are removed</li>
+          <li style="margin-bottom: 8px;">I must complete the study to earn SONA credit</li>
+          <li style="margin-bottom: 8px;">I am at least 18 years old</li>
+        </ul>
+        <p style="margin-bottom: 15px; font-weight: bold;">By clicking "I Agree" below, I confirm that I agree to participate in the research study described above.</p>
+      </div>
+    </div>
+  `,
+  choices: ['I Agree', 'I Do Not Agree'],
+  button_html: '<button class="jspsych-btn" style="margin: 10px;">%choice%</button>',
+  data: {
+    phase: 'informed_consent'
+  },
+  on_finish: function(data) {
+    // Record which button was pressed (0 = I Agree, 1 = I Do Not Agree)
+    data.consented = data.response === 0;
+    
+    // If participant does not consent, end the experiment
+    if (data.response === 1) {
+      jsPsych.endExperiment('You have declined to participate in this study. Thank you for your time. You may now close this window.');
+    }
+  }
+};
+
 var instructions = {
   type: jsPsychHtmlButtonResponse,
   stimulus: `<p>Press F if there is a red triangle in the group.</p>
@@ -299,6 +461,9 @@ var demographics_race = {
 
 // First, we push the initialization to the timeline to kick everything off
 timeline.push(pavlovia_init);
+
+// Add this to your timeline
+timeline.push(consent);
 
 // Preload images
 timeline.push({
