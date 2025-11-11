@@ -542,16 +542,22 @@ timeline.push({
   }
 });
 
+// Generate a random key for this participant
+const randomKey = jsPsych.randomization.sampleWithReplacement(['f', 'j', 'space'], 1)[0];
+const keyDisplay = randomKey === 'space' ? 'SPACEBAR' : randomKey.toUpperCase();
+
 // General task instructions
 timeline.push({
   type: jsPsychInstructions,
   pages: [
-    '<p style="font-size:4vw">Welcome!</p><br><br><p style="font-size:1.5vw">Thanks for reading and agreeing to the consent form. In this study you will complete two tasks: First, you will complete a visual search task where we ask you to indicate if a shape is present amongst other shapes. After completing the visual search task, you will complete a questionnaire about yourself, how mindful you are, and your life satisfaction. The study takes about 40-45 minutes to complete. All responses will remain anonymous.</p>'],
-  button_label_next: 'Continue',
-  button_label_previous: 'Go back',
-  show_clickable_nav: true,
+    `<p style="font-size:4vw">Welcome!</p><br><br><p style="font-size:1.5vw">Thanks for reading and agreeing to the consent form. In this study you will complete two tasks: First, you will complete a visual search task where we ask you to indicate if a shape is present amongst other shapes. After completing the visual search task, you will complete a questionnaire about yourself, how mindful you are, and your life satisfaction. The study takes about 40-45 minutes to complete. All responses will remain anonymous.</p><br><br><p style="font-size:1.5vw; font-weight:bold; color:#2196F3;">To continue, press the ${keyDisplay} key</p>`
+  ],
+  show_clickable_nav: false,
+  key_forward: randomKey,
+  allow_keys: true,
   data: {
-    phase: 'intro_instructions'
+    phase: 'intro_instructions',
+    required_key: randomKey
   }
 });
 
