@@ -128,6 +128,7 @@ for (var block = 0; block < NumBlocks; block++) {
             intended_set_size: StimSetSize[i],  // Original intended set size
             distractor_type: DistractorNames[k],
             block: block,
+            phase: "visual_search_trial",
             stimuli_list: stimuli.slice()  // Save a copy of the stimuli array
             }
         };
@@ -612,7 +613,7 @@ timeline.push(...exposure);  // Spread the visual search exposure array
 
 timeline.push({
   type: jsPsychHtmlKeyboardResponse,
-  stimulus: "<p style='font-size:4vw'>You've finished the visual search. Next is the mindfulness survey.</p>",
+  stimulus: "<p style='font-size:2.5vw'>You've finished the visual search. Next is the mindfulness survey.</p>",
   choices: 'NO_KEYS',
   trial_duration: 4000,
   response_ends_trial: false,
@@ -625,7 +626,7 @@ timeline.push(mindfulness_survey);
 
 timeline.push({
   type: jsPsychHtmlKeyboardResponse,
-  stimulus: "<p style='font-size:4vw'>You've finished the mindfulness survey. Next is the life satisfaction questionnaire.</p>",
+  stimulus: "<p style='font-size:2.5vw'>You've finished the mindfulness survey. Next is the life satisfaction questionnaire.</p>",
   choices: 'NO_KEYS',
   trial_duration: 4000,
   response_ends_trial: false,
@@ -638,7 +639,7 @@ timeline.push(Satisfaction_Survey);
 
 timeline.push({
   type: jsPsychHtmlKeyboardResponse,
-  stimulus: "<p style='font-size:4vw'>You've finished the visual search. The last survey is a personality questionnaire.</p>",
+  stimulus: "<p style='font-size:2.5vw'>You've finished the satisfaction questionnaire. The last survey is a personality questionnaire.</p>",
   choices: 'NO_KEYS',
   trial_duration: 4000,
   response_ends_trial: false,
