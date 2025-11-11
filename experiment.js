@@ -448,7 +448,9 @@ var Big_5_survey = {
     {prompt: "Is full of energy", name: 'Energetic', labels: likert_scale},
     {prompt: "likes to cooperate with others", name: 'cooperate', labels: likert_scale},
     {prompt: "Is easily distracted", name: 'distracted', labels: likert_scale},
-    {prompt: "Is sophisticated in art, music, or literature", name: 'sophisticated', labels: likert_scale},
+    {prompt: "Is sophisticated in art, music, or literature", name: 'sophisticated', labels: likert_scale}
+    ]
+    };
 
 // Demographics survey: a block for entering age, gender, and race
 var demographics_age = {
