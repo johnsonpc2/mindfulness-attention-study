@@ -33,7 +33,58 @@ const jsPsych = initJsPsych({
       }
     }
     
-    // Add to data
+    // Process mindfulness survey responses
+    var mindfulness_data = jsPsych.data.get().filter({phase: 'mindfulness_survey'}).values();
+    if (mindfulness_data.length > 0) {
+      var mindfulness_responses = mindfulness_data[0].response;
+      Object.keys(mindfulness_responses).forEach(key => {
+        jsPsych.data.get().filter({phase: 'mindfulness_survey'}).values()[0][key] = mindfulness_responses[key];
+      });
+    }
+    
+    // Process satisfaction survey responses
+    var satisfaction_data = jsPsych.data.get().filter({phase: 'satisfaction_survey'}).values();
+    if (satisfaction_data.length > 0) {
+      var satisfaction_responses = satisfaction_data[0].response;
+      Object.keys(satisfaction_responses).forEach(key => {
+        jsPsych.data.get().filter({phase: 'satisfaction_survey'}).values()[0][key] = satisfaction_responses[key];
+      });
+    }
+    
+    // Process Big 5 survey responses
+    var big5_data = jsPsych.data.get().filter({phase: 'big5_survey'}).values();
+    if (big5_data.length > 0) {
+      var big5_responses = big5_data[0].response;
+      Object.keys(big5_responses).forEach(key => {
+        jsPsych.data.get().filter({phase: 'big5_survey'}).values()[0][key] = big5_responses[key];
+      });
+    }
+    
+    // Process demographics - age
+    var age_data = jsPsych.data.get().filter({phase: 'demographics_survey'}).values();
+    if (age_data.length > 0) {
+      age_data[0].age = age_data[0].response.age;
+    }
+    
+    // Process demographics - gender
+    var gender_data = jsPsych.data.get().filter({phase: 'demographics_gender'}).values();
+    if (gender_data.length > 0) {
+      gender_data[0].gender_selected = gender_data[0].response.gender ? gender_data[0].response.gender.join(', ') : '';
+    }
+    
+    // Process demographics - gender other
+    var gender_other_data = jsPsych.data.get().filter({phase: 'demographics_gender_other'}).values();
+    if (gender_other_data.length > 0) {
+      gender_other_data[0].gender_other_text = gender_other_data[0].response.gender_other;
+    }
+    
+    // Process demographics - race
+    var race_data = jsPsych.data.get().filter({phase: 'demographics_race'}).values();
+    if (race_data.length > 0) {
+      race_data[0].race_selected = race_data[0].response.race;
+    }
+    
+    // Add summary statistics to last trial
     jsPsych.data.get().addToLast({
       total_visual_search_trials: visual_search_trials.count(),
       correct_visual_search_trials: correct_trials.count(),
@@ -497,9 +548,6 @@ var demographics_age = {
   }],
   data: {
     phase: 'demographics_survey'
-  },
-  on_finish: function(data){
-    data.response = JSON.stringify(data.response.age);
   }
 };
 
