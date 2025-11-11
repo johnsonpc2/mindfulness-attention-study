@@ -124,11 +124,12 @@ for (var block = 0; block < NumBlocks; block++) {
           target_absent_key: 'j',
           target_size: [400, 400],
           data: {
-            set_size: StimSetSize[i],
+            set_size: stimuli.length,  // Record actual number of items displayed
+            intended_set_size: StimSetSize[i],  // Original intended set size
             distractor_type: DistractorNames[k],
             block: block,
             stimuli_list: stimuli.slice()  // Save a copy of the stimuli array
-          }
+            }
         };
         
         block_trials.push(trial);
@@ -163,7 +164,7 @@ for (var block = 0; block < NumBlocks; block++) {
     var break_slide = {
       type: jsPsychHtmlKeyboardResponse,
       stimulus: `<p>Great job so far! Please rest for a few seconds before continuing.</p>
-                 <p>Press the <strong>${break_key_upper}</strong> button on your keyboard to continue.</p>`,
+                 <p>Press the <strong>${break_key_upper}</strong> key on your keyboard to continue.</p>`,
       choices: [break_key_lower],
       data: {
         phase: 'break',
@@ -338,7 +339,7 @@ const consent_check = {
   timeline: [
     {
       type: jsPsychHtmlButtonResponse,
-      stimulus: '<p>You have declined to participate in this study. Thank you for your time.<br><br>Redirecting you back to SONA...</p>',
+      stimulus: '<p>You have declined to participate in this study. Thank you for your time.<br><br>Redirecting back to SONA...</p>',
       choices: [],
       trial_duration: 500,
       on_finish: function() {
@@ -354,11 +355,34 @@ const consent_check = {
   }
 };
 
-var instructions = {
+// Generate a random key for this participant
+var randomKey = jsPsych.randomization.sampleWithReplacement(['f', 'j'], 1)[0];
+var keyDisplay = randomKey;
+
+// General task instructions
+var initial_instructions = {
+  type: jsPsychInstructions,
+  pages: [
+    `<p style="font-size:4vw">Welcome!</p><br><br><p style="font-size:1.5vw">Thanks for reading and agreeing to the consent form. In this study you will complete two tasks: First, you will complete a visual search task where we ask you to indicate if a shape is present amongst other shapes. After completing the visual search task, you will complete a questionnaire about yourself, how mindful you are, and your life satisfaction. The study takes about 40-45 minutes to complete. All responses will remain anonymous.</p><br><br><p style="font-size:1.5vw; font-weight:bold; color:#2196F3;">To continue, press the ${keyDisplay} key when you are ready to beign.</p>`
+  ],
+  show_clickable_nav: false,
+  key_forward: randomKey,
+  allow_backward: false,
+  allow_keys: true,
+  data: {
+    phase: 'intro_instructions',
+    required_key: randomKey
+  }
+};
+
+var vs_instructions = {
   type: jsPsychHtmlButtonResponse,
   stimulus: `<p>Press F if there is a red triangle in the group.</p>
     <p>Press J if there is no red triangle in the group.</p>`,
-  choices: ['Continue']
+  choices: ['Continue'],
+  data: {
+    phase: 'vs_instructions'
+  }
 };
 
 var likert_scale = [
@@ -388,7 +412,10 @@ var mindfulness_survey = {
     {prompt:"I find myself preoccupied with the future or the past.", name: 'Preoccupied', labels: likert_scale},
     {prompt:"I find myself doing things without paying attention.", name: 'Attention', labels: likert_scale},
     {prompt:"I snack without being aware that I'm eating.", name: 'Eat', labels: likert_scale}],
-    randomize_question_order: true
+    randomize_question_order: true,
+    data: {
+    phase: 'mindfulness_survey'
+  }
 };
 
 var Satisfaction_Survey = {
@@ -399,7 +426,10 @@ var Satisfaction_Survey = {
     {prompt: "I am satisfied with my life", name: 'Satisfied', labels: likert_scale},
     {prompt: "So far I have gotten the important things I want in life.", name: 'Important', labels: likert_scale},
     {prompt: "If I could live my life over, I would change almost nothing.", name: 'Change', labels: likert_scale}],
-    randomize_question_order: true
+    randomize_question_order: true,
+    data: {
+    phase: 'satisfaction_survey'
+  }
 };
 var Big_5_survey = {
   type: jsPsychSurveyLikert,
@@ -450,7 +480,10 @@ var Big_5_survey = {
     {prompt: "likes to cooperate with others", name: 'cooperate', labels: likert_scale},
     {prompt: "Is easily distracted", name: 'distracted', labels: likert_scale},
     {prompt: "Is sophisticated in art, music, or literature", name: 'sophisticated', labels: likert_scale}
-    ]
+    ],
+    data: {
+    phase: 'big5_survey'
+  }
     };
 
 // Demographics survey: a block for entering age, gender, and race
@@ -523,62 +556,8 @@ var demographics_race = {
   }
 };
 
-//// Now that we've defined everything, we can start pushing things to the timeline that subjects will see
-
-// First, we push the initialization to the timeline to kick everything off
-timeline.push(pavlovia_init);
-
-// Add this to your timeline
-timeline.push(consent);
-
-timeline.push(consent_check);
-
-// Preload images
-timeline.push({
-  type: jsPsychPreload,
-  images: image_files,
-  data: {
-    phase: 'image_preload'
-  }
-});
-
-// Generate a random key for this participant
-var randomKey = jsPsych.randomization.sampleWithReplacement(['f', 'j'], 1)[0];
-var keyDisplay = randomKey;
-
-// General task instructions
-timeline.push({
-  type: jsPsychInstructions,
-  pages: [
-    `<p style="font-size:4vw">Welcome!</p><br><br><p style="font-size:1.5vw">Thanks for reading and agreeing to the consent form. In this study you will complete two tasks: First, you will complete a visual search task where we ask you to indicate if a shape is present amongst other shapes. After completing the visual search task, you will complete a questionnaire about yourself, how mindful you are, and your life satisfaction. The study takes about 40-45 minutes to complete. All responses will remain anonymous.</p><br><br><p style="font-size:1.5vw; font-weight:bold; color:#2196F3;">To continue, press the ${keyDisplay} key</p>`
-  ],
-  show_clickable_nav: false,
-  key_forward: randomKey,
-  allow_backward: false,
-  allow_keys: true,
-  data: {
-    phase: 'intro_instructions',
-    required_key: randomKey
-  }
-});
-
-// Visual search task instructions
-timeline.push(instructions);
-timeline.push(...exposure);  // Spread the visual search exposure array
-
-// Add surveys
-timeline.push(mindfulness_survey);
-timeline.push(Satisfaction_Survey);
-timeline.push(Big_5_survey);
-
-// Add demographics
-timeline.push(demographics_age);
-timeline.push(demographics_gender);
-timeline.push(demographics_gender_other);
-timeline.push(demographics_race);
-
 // Debriefing redirects people to the Sona login page
-timeline.push({
+var debriefing = {
   type: jsPsychInstructions,
   pages: [
     '<p style="font-size:1.5vw">Thank you for completing the study! Click "Continue" to move to the debriefing on the next page and receive credit for your participation.</p>',
@@ -590,7 +569,99 @@ timeline.push({
   data: {
     phase: 'debriefing'
   }
+};
+
+//// Now that we've defined everything, we can start pushing things to the timeline that subjects will see
+
+// First, we push the initialization to the timeline to kick everything off
+timeline.push(pavlovia_init);
+
+// Then we need them to go thorugh the consent form
+timeline.push(consent);
+
+timeline.push(consent_check);
+
+// Preload images now, so they don't lag later
+timeline.push({
+  type: jsPsychPreload,
+  images: image_files,
+  data: {
+    phase: 'image_preload'
+  }
 });
+
+// Overall task instructions
+timeline.push(initial_instructions);
+
+timeline.push({
+  type: jsPsychHtmlKeyboardResponse,
+  stimulus: '<p style="font-size:4vw">Visual Search Task</p>',
+  choices: 'NO_KEYS',
+  trial_duration: 2000,
+  response_ends_trial: false,
+  data: {
+    phase: 'intermediate_slide_VS'
+  }
+});
+
+// Visual search instructions
+timeline.push(vs_instructions);
+timeline.push(...exposure);  // Spread the visual search exposure array
+
+// Add surveys
+
+timeline.push({
+  type: jsPsychHtmlKeyboardResponse,
+  stimulus: "<p style='font-size:4vw'>You've finished the visual search. Next is the mindfulness survey.</p>",
+  choices: 'NO_KEYS',
+  trial_duration: 4000,
+  response_ends_trial: false,
+  data: {
+    phase: 'intermediate_slide_mindfulness'
+  }
+});
+
+timeline.push(mindfulness_survey);
+
+timeline.push({
+  type: jsPsychHtmlKeyboardResponse,
+  stimulus: "<p style='font-size:4vw'>You've finished the mindfulness survey. Next is the life satisfaction questionnaire.</p>",
+  choices: 'NO_KEYS',
+  trial_duration: 4000,
+  response_ends_trial: false,
+  data: {
+    phase: 'intermediate_slide_ls'
+  }
+});
+
+timeline.push(Satisfaction_Survey);
+
+timeline.push({
+  type: jsPsychHtmlKeyboardResponse,
+  stimulus: "<p style='font-size:4vw'>You've finished the visual search. The last survey is a personality questionnaire.</p>",
+  choices: 'NO_KEYS',
+  trial_duration: 4000,
+  response_ends_trial: false,
+  data: {
+    phase: 'intermediate_slide_personality'
+  }
+});
+
+timeline.push(Big_5_survey);
+
+// Add demographics
+timeline.push(demographics_age);
+timeline.push(demographics_gender);
+timeline.push({
+  timeline: [demographics_gender_other],
+  conditional_function: function() {
+    var data = jsPsych.data.get().filter({phase: 'demographics_gender'}).last(1).values()[0];
+    return data.response.gender && data.response.gender.includes('Other');
+  }
+});
+timeline.push(demographics_race);
+
+timeline.push(debriefing);
 
 timeline.push(pavlovia_finish);
 
