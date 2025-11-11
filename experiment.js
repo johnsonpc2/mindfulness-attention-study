@@ -543,8 +543,8 @@ timeline.push({
 });
 
 // Generate a random key for this participant
-const randomKey = jsPsych.randomization.sampleWithReplacement(['f', 'j', 'space'], 1)[0];
-const keyDisplay = randomKey === 'space' ? 'SPACEBAR' : randomKey.toUpperCase();
+var randomKey = jsPsych.randomization.sampleWithReplacement(['f', 'j'], 1)[0];
+var keyDisplay = randomKey;
 
 // General task instructions
 timeline.push({
@@ -554,14 +554,13 @@ timeline.push({
   ],
   show_clickable_nav: false,
   key_forward: randomKey,
+  allow_backward: false,
   allow_keys: true,
   data: {
     phase: 'intro_instructions',
     required_key: randomKey
   }
 });
-
-timeline.push(Big_5_survey);
 
 // Visual search task instructions
 timeline.push(instructions);
@@ -570,6 +569,7 @@ timeline.push(...exposure);  // Spread the visual search exposure array
 // Add surveys
 timeline.push(mindfulness_survey);
 timeline.push(Satisfaction_Survey);
+timeline.push(Big_5_survey);
 
 // Add demographics
 timeline.push(demographics_age);
