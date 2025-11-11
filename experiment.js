@@ -65,7 +65,7 @@ const timeline = [];
 var exposure = [];
 
 // These are the basic settings for how the visual search task blocks will be constructed
-var NumBlocks = 20;
+var NumBlocks = 3;
 var BreakSlide = 2; // Insert a break slide after every X blocks
 var StimSetSize = [3, 6, 9];
 var Target = ['present', 'absent'];
