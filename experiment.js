@@ -403,6 +403,7 @@ var Satisfaction_Survey = {
 };
 var Big_5_survey = {
   type: jsPsychSurveyLikert,
+  preamble: "<p>Here are a number of characteristics that may or may not apply to you. For example, do you agree that you are someone who likes to spend time with others? Please indicate for each statement the extent to which you agree or disagree with that statement.</p>" + "<p>I see myself as someone who...</p>",
   questions: [
     {prompt: "Is talkative", name: 'Talkative', labels: likert_scale},
     {prompt: "Tends to find fault with others", name: 'Fault', labels: likert_scale},
@@ -553,6 +554,8 @@ timeline.push({
     phase: 'intro_instructions'
   }
 });
+
+timeline.push(Big_5_survey);
 
 // Visual search task instructions
 timeline.push(instructions);
