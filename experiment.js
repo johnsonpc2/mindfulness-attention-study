@@ -175,8 +175,7 @@ for (var block = 0; block < NumBlocks; block++) {
           target_absent_key: 'j',
           target_size: [400, 400],
           data: {
-            set_size: stimuli.length,  // Record actual number of items displayed
-            intended_set_size: StimSetSize[i],  // Original intended set size
+            set_size: StimSetSize[i],
             distractor_type: DistractorNames[k],
             block: block,
             phase: "visual_search_trial",
@@ -465,6 +464,7 @@ var mindfulness_survey = {
     {prompt:"I find myself doing things without paying attention.", name: 'Attention', labels: likert_scale},
     {prompt:"I snack without being aware that I'm eating.", name: 'Eat', labels: likert_scale}],
     randomize_question_order: true,
+    scale_width: window.innerWidth * 0.8,
     data: {
     phase: 'mindfulness_survey'
   }
@@ -479,6 +479,7 @@ var Satisfaction_Survey = {
     {prompt: "So far I have gotten the important things I want in life.", name: 'Important', labels: likert_scale},
     {prompt: "If I could live my life over, I would change almost nothing.", name: 'Change', labels: likert_scale}],
     randomize_question_order: true,
+    scale_width: window.innerWidth * 0.8,
     data: {
     phase: 'satisfaction_survey'
   }
@@ -533,6 +534,7 @@ var Big_5_survey = {
     {prompt: "Is easily distracted", name: 'distracted', labels: likert_scale},
     {prompt: "Is sophisticated in art, music, or literature", name: 'sophisticated', labels: likert_scale}
     ],
+    scale_width: window.innerWidth * 0.8,
     data: {
     phase: 'big5_survey'
   }
@@ -638,6 +640,8 @@ timeline.push({
     phase: 'image_preload'
   }
 });
+
+timeline.push(Satisfaction_Survey);
 
 // Overall task instructions
 timeline.push(initial_instructions);
