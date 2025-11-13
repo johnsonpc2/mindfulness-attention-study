@@ -608,15 +608,91 @@ var demographics_race = {
 };
 
 // Debriefing redirects people to the Sona login page
-var debriefing = {
-  type: jsPsychInstructions,
-  pages: [
-    '<p style="font-size:1.5vw">Thank you for completing the study! Click "Continue" to move to the debriefing on the next page and receive credit for your participation.</p>',
-    "<p style='font-size:1.5vw'>The researcher's goal is to examine the relationship between attention, mindfulness, and life satisfaction. With the data you have provided, we will be able to see, for example, if greater levels of attention and higher mindfulness are related with life satisfaction. If you have any questions, please contact the researcher (ebremmer@albany.edu or pjohnson4@albany.edu).</p>",
-    '<p style="font-size:1.5vw">By hitting the "Continue" button on this page, you will complete the study and indication of your participation will be sent to the Sona pool so you earn credit for participating.</p>'],
-  button_label_next: 'Continue',
-  button_label_previous: 'Go back',
-  show_clickable_nav: true,
+var debriefing_mindfulness = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus: `
+    <div style="max-width: 900px; margin: 0 auto; padding: 20px; text-align: left; line-height: 1.6;">
+      <h1 style="text-align: center; color: #333; font-size: 24px; margin-bottom: 10px;">
+        Study Debriefing
+      </h1>
+      <div style="text-align: center; font-size: 20px; color: #555; margin-bottom: 30px; font-style: italic;">
+        The Effects of Mindfulness and Attention on Life Satisfaction and Memory
+      </div>
+
+      <div style="background-color: #e3f2fd; border-left: 4px solid #2196F3; padding: 20px; margin: 20px 0;">
+        <h2 style="margin-top: 0; color: #1976d2; font-size: 20px;">Thank You for Participating!</h2>
+        <p style="margin-bottom: 0;">We appreciate your time and effort in completing this study. Your participation helps us better understand the relationship between mindfulness, attention, and well-being.</p>
+      </div>
+
+      <h2 style="color: #555; font-size: 20px; margin-top: 30px; border-bottom: 2px solid #e0e0e0; padding-bottom: 8px;">
+        Study Purpose
+      </h2>
+      <p style="margin-bottom: 15px;">The purpose of this study was to examine the relationship between attention, mindfulness, and life satisfaction. Specifically, we wanted to explore whether:</p>
+      <ul style="margin: 10px 0 15px 25px; padding: 0;">
+        <li style="margin-bottom: 8px;">Greater levels of mindfulness (awareness of the present moment) are associated with better attentional control</li>
+        <li style="margin-bottom: 8px;">Mindfulness and attention are related to overall life satisfaction</li>
+        <li style="margin-bottom: 8px;">These relationships hold across people with different levels of conscientiousness</li>
+      </ul>
+
+      <h2 style="color: #555; font-size: 20px; margin-top: 30px; border-bottom: 2px solid #e0e0e0; padding-bottom: 8px;">
+        What We Learned from Your Participation
+      </h2>
+      <p style="margin-bottom: 15px;">The visual search task you completed measures your ability to focus attention and efficiently locate target objects among distractors. This basic cognitive ability may be related to mindfulness practices in everyday life.</p>
+      
+      <p style="margin-bottom: 15px;">The questionnaires you completed help us understand your typical level of mindfulness, your satisfaction with life, and your personality characteristics (most importantly, conscientiousness). By combining data from the visual search task with your survey responses, we can examine how mindfulness and attention may relate to experiences at both a large scale (life satisfaction) and small scale (visual attention).</p>
+
+      <h2 style="color: #555; font-size: 20px; margin-top: 30px; border-bottom: 2px solid #e0e0e0; padding-bottom: 8px;">
+        How Your Data Will Be Used
+      </h2>
+      <p style="margin-bottom: 15px;">Your anonymous responses will be combined with data from other participants to identify patterns and relationships between mindfulness, attention, and life satisfaction. The results may:</p>
+      <ul style="margin: 10px 0 15px 25px; padding: 0;">
+        <li style="margin-bottom: 8px;">Help inform mental health professionals about the potential benefits of mindfulness practices</li>
+        <li style="margin-bottom: 8px;">Contribute to educational programs that support student well-being</li>
+        <li style="margin-bottom: 8px;">Advance our understanding of how everyday awareness relates to cognitive functioning</li>
+        <li style="margin-bottom: 8px;">Be published in peer-reviewed scientific journals and presented at academic conferences</li>
+      </ul>
+
+      <h2 style="color: #555; font-size: 20px; margin-top: 30px; border-bottom: 2px solid #e0e0e0; padding-bottom: 8px;">
+        Confidentiality Reminder
+      </h2>
+      <p style="margin-bottom: 15px;">All of your responses are completely anonymous, and your data has been assigned a random ID number that we cannot trace back to you. We cannot and will not link your identity to your data in any way. Your privacy is protected throughout all stages of data analysis, storage, and potential publication.</p>
+
+      <h2 style="color: #555; font-size: 20px; margin-top: 30px; border-bottom: 2px solid #e0e0e0; padding-bottom: 8px;">
+        Questions or Concerns?
+      </h2>
+      <div style="background-color: #f0f0f0; padding: 15px; border-left: 4px solid #2196F3; margin: 20px 0;">
+        <p style="margin-bottom: 10px;">If you have any questions about this study or would like to learn about the results when they become available, please feel free to contact:</p>
+        <p style="margin-bottom: 15px;">
+          <strong>Principal Investigator:</strong> Ella M. Bremmer<br>
+          Email: ebremmer@albany.edu<br><br>
+          <strong>Co-Principal Investigator:</strong> Pierce Johnson<br>
+          Email: pjohnson4@albany.edu<br><br>
+          <strong>Faculty Advisor:</strong> Gregory Cox, PhD<br>
+          Email: gecox@albany.edu
+        </p>
+        
+        <p style="margin-bottom: 10px;">If you have questions about your rights as a research participant, you may contact:</p>
+        <p style="margin-bottom: 0;">
+          Institutional Review Board<br>
+          University at Albany<br>
+          Phone: 1-866-857-5459<br>
+          Email: rco@albany.edu
+        </p>
+      </div>
+
+      <div style="background-color: #fff3cd; border: 2px solid #ffc107; border-radius: 5px; padding: 20px; margin-top: 30px;">
+        <h2 style="margin-top: 0; color: #856404; font-size: 18px;">Receiving Your SONA Credit</h2>
+        <p style="margin-bottom: 10px; color: #856404;">By clicking "Complete Study" below, you will:</p>
+        <ul style="margin: 10px 0 15px 25px; padding: 0; color: #856404;">
+          <li style="margin-bottom: 8px;">Finalize your participation in this study</li>
+          <li style="margin-bottom: 8px;">Be redirected to SONA to receive your research credit</li>
+          <li style="margin-bottom: 8px;">Have your participation recorded in the SONA system</li>
+        </ul>
+        <p style="margin-bottom: 0; font-weight: bold; color: #856404;">Thank you again for your valuable contribution to psychological research!</p>
+      </div>
+    </div>
+  `,
+  choices: ['Complete Study'],
   data: {
     phase: 'debriefing'
   }
@@ -712,7 +788,7 @@ timeline.push({
 });
 timeline.push(demographics_race);
 
-timeline.push(debriefing);
+timeline.push(debriefing_mindfulness);
 
 timeline.push(pavlovia_finish);
 
