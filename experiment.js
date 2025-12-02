@@ -427,8 +427,9 @@ var initial_instructions = {
 
 var vs_instructions = {
   type: jsPsychHtmlButtonResponse,
-  stimulus: `<p>Press F if there is a red triangle in the group.</p>
-    <p>Press J if there is no red triangle in the group.</p>`,
+  stimulus: `<p>On the following screens, you will see a series of  colored shapes appear on the screen.</p>
+    <p>Please Press 'F' if there <strong>is</strong> a red triangle among the shapes you see.</p>
+    <p>Press 'J' if there is <strong>not</strong> a red triangle among the shapes you see.</p>`,
   choices: ['Continue'],
   data: {
     phase: 'vs_instructions'
