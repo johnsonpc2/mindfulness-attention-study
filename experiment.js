@@ -333,7 +333,6 @@ const consent = {
       <p style="margin-bottom: 10px;">Participation in this study is completely voluntary. You have the right to:</p>
       <ul style="margin: 10px 0; padding-left: 25px;">
         <li style="margin-bottom: 8px;">Decline to participate without any consequences</li>
-        <li style="margin-bottom: 8px;">Skip any question you do not want to answer</li>
         <li style="margin-bottom: 8px;">Withdraw from the study at any time without penalty</li>
       </ul>
       
