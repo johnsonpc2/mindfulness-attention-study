@@ -427,7 +427,7 @@ var initial_instructions = {
 
 var vs_instructions = {
   type: jsPsychHtmlButtonResponse,
-  stimulus: `<p>On the following screens, you will see a series of  colored shapes appear on the screen.</p>
+  stimulus: `<p>On the following screens, you will see a series of colored shapes (triangles, squares, and circles) appear.</p>
     <p>Please Press 'F' if there <strong>is</strong> a red triangle among the shapes you see.</p>
     <p>Press 'J' if there is <strong>not</strong> a red triangle among the shapes you see.</p>`,
   choices: ['Continue'],
@@ -483,7 +483,7 @@ var satisfaction_likert_scale = [
 
 var Satisfaction_Survey = {
   type: jsPsychSurveyLikert,
-  preamble: "<p>Below are five statements that you may agree or disagree with. Indicate your agreement with each item by tapping the appropriate box, from strongly agree, to strongly disagree. Please be open and honest in your responding.</p>",
+  preamble: "<p>Below are five statements that you may agree or disagree with. Indicate your agreement with each item, from strongly agree, to strongly disagree. Please be open and honest in your responding.</p>",
   questions: [
     {prompt: "In most ways my life is close to my ideal.", name: 'Ideal', labels: satisfaction_likert_scale},
     {prompt: "The conditions of my life are excellent.", name: 'Conditions', labels: satisfaction_likert_scale},
@@ -491,7 +491,7 @@ var Satisfaction_Survey = {
     {prompt: "So far I have gotten the important things I want in life.", name: 'Important', labels: satisfaction_likert_scale},
     {prompt: "If I could live my life over, I would change almost nothing.", name: 'Change', labels: satisfaction_likert_scale}],
     randomize_question_order: true,
-    scale_width: window.innerWidth * 0.7,
+    scale_width: window.innerWidth * 0.8,
     data: {
     phase: 'satisfaction_survey'
   }
@@ -650,7 +650,7 @@ var debriefing_mindfulness = {
       </h2>
       <p style="margin-bottom: 15px;">The purpose of this study was to examine the relationship between attention, mindfulness, and life satisfaction. Specifically, we wanted to explore whether:</p>
       <ul style="margin: 10px 0 15px 25px; padding: 0;">
-        <li style="margin-bottom: 8px;">Greater levels of mindfulness (awareness of the present moment) are associated with better attentional control (the ability to focus on specific aspects of the environement while 'tuning out' distractions</li>
+        <li style="margin-bottom: 8px;">Greater levels of mindfulness (awareness of the present moment) are associated with better attentional control (the ability to focus on specific aspects of the environement while 'tuning out' distractions)</li>
         <li style="margin-bottom: 8px;">Mindfulness and attention are related to overall life satisfaction</li>
         <li style="margin-bottom: 8px;">These relationships hold across people with different levels of conscientiousness</li>
       </ul>
