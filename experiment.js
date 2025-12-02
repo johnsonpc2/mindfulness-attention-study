@@ -241,7 +241,7 @@ const consent = {
       </div>
       
       <p style="margin-bottom: 15px;"><strong>University at Albany, State University of New York<br>
-      Department of Psychology</strong></p>
+      Department of Psychology, College of Arts and Sciences</strong></p>
 
       <div style="background-color: #e8f5e9; border-left: 4px solid #4CAF50; padding: 20px; margin: 20px 0;">
         <h2 style="margin-top: 0; color: #2e7d32; font-size: 20px;">Key Information</h2>
@@ -256,13 +256,13 @@ const consent = {
       <h2 style="color: #555; font-size: 20px; margin-top: 30px; border-bottom: 2px solid #e0e0e0; padding-bottom: 8px;">
         Researchers and Contact Information
       </h2>
-      <p style="margin-bottom: 10px;"><strong>Principal Investigator:</strong> Ella M. Bremmer, Undergraduate Student, Department of Psychology, University at Albany<br>
+      <p style="margin-bottom: 10px;"><strong>Principal Investigator:<br></strong> Ella M. Bremmer, Undergraduate Student <br> Department of Psychology, University at Albany<br>
       Email: ebremmer@albany.edu</p>
       
-      <p style="margin-bottom: 10px;"><strong>Co-Principal Investigator:</strong> Pierce Johnson, Graduate Assistant, Department of Psychology, University at Albany<br>
+      <p style="margin-bottom: 10px;"><strong>Co-Principal Investigator:<br></strong> Pierce C. Johnson, Graduate Assistant <br> Department of Psychology, University at Albany<br>
       Email: pjohnson4@albany.edu</p>
 
-      <p style="margin-bottom: 15px;"><strong>Faculty Advisor:</strong> Gregory Cox, PhD, Assistant Professor, Department of Psychology, University at Albany<br>
+      <p style="margin-bottom: 15px;"><strong>Faculty Advisor:<br></strong> Gregory Cox, PhD, Assistant Professor <br> Department of Psychology, University at Albany<br>
       Email: gecox@albany.edu</p>
 
       <h2 style="color: #555; font-size: 20px; margin-top: 30px; border-bottom: 2px solid #e0e0e0; padding-bottom: 8px;">
@@ -277,16 +277,16 @@ const consent = {
       </h2>
       <p style="margin-bottom: 10px;"><strong>What you will be asked to do:</strong></p>
       <ul style="margin: 10px 0; padding-left: 25px;">
+        <li style="margin-bottom: 8px;">Answer demographic questions (e.g., age, gender, race/ethnicity)</li>
         <li style="margin-bottom: 8px;">Complete a visual search task where you will view displays of simple colored shapes and decide whether each display contains a designated "target" object (e.g., a red triangle). The displays will vary in the number of shapes shown and how the objects differ from the target.</li>
         <li style="margin-bottom: 8px;">Complete the Mindfulness Attention Awareness Scale (MAAS) - questions about how often you pay attention to the present moment</li>
         <li style="margin-bottom: 8px;">Complete the Satisfaction With Life Scale (SWLS) - questions about how satisfied you feel with your life</li>
         <li style="margin-bottom: 8px;">Complete the Big 5 Inventory - questions about personality traits</li>
-        <li style="margin-bottom: 8px;">Answer demographic questions (e.g., age, gender, race/ethnicity, student status)</li>
       </ul>
       
       <p style="margin-bottom: 15px;"><strong>Time commitment:</strong> Study participation will take approximately 45 minutes and must be completed in one sitting at a time of your choosing. All study procedures will take place online through the Pavlovia platform.</p>
       
-      <p style="margin-bottom: 15px;"><strong>Requirements:</strong> You must be at least 18 years old and currently enrolled at UAlbany. You must be able to read and understand English. We ask that you complete the study in a quiet environment to minimize distractions. You may take breaks while completing the survey to reduce the risk of eye strain associated with the use of electronic devices.</p>
+      <p style="margin-bottom: 15px;"><strong>Requirements:</strong> You must be at least 18 years old and currently enrolled at UAlbany. You must be able to read and understand English. We ask that you complete the study in a quiet environment to minimize distractions.</p>
 
       <h2 style="color: #555; font-size: 20px; margin-top: 30px; border-bottom: 2px solid #e0e0e0; padding-bottom: 8px;">
         Risks and Discomforts
@@ -298,7 +298,7 @@ const consent = {
         <li style="margin-bottom: 8px;">Minimal risk of confidentiality breach (see Confidentiality section below for mitigation steps)</li>
       </ul>
       
-      <p style="margin-bottom: 15px;">To minimize these risks, you will be clearly informed that you can withdraw from the study at any time without any consequences. You are encouraged to take breaks during the survey as needed.</p>
+      <p style="margin-bottom: 15px;">To minimize these risks, you can withdraw from the study at any time without any consequences. You are encouraged to take breaks during the survey as needed.</p>
 
       <h2 style="color: #555; font-size: 20px; margin-top: 30px; border-bottom: 2px solid #e0e0e0; padding-bottom: 8px;">
         Benefits
@@ -370,7 +370,7 @@ const consent = {
           <li style="margin-bottom: 8px;">I must complete the study to earn SONA credit</li>
           <li style="margin-bottom: 8px;">I am at least 18 years old</li>
         </ul>
-        <p style="margin-bottom: 15px; font-weight: bold;">By clicking "I Agree" below, I confirm that I agree to participate in the research study described above.</p>
+        <p style="margin-bottom: 15px; font-weight: bold;">By clicking "I Agree" below, I confirm that I agree to participate in the research study described above.<br> If you would like a copy of this consent form for your records, you have the ability to print a copy of the form by pressing Cmd + P or Ctrl + P and printing this page to PDF.</p>
       </div>
     </div>
   `,
