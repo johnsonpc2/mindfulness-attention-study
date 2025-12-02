@@ -546,10 +546,32 @@ var demographics_age = {
   questions: [{
     prompt: '<p style=font-size:1.5vw>Please enter your age in numerals (e.g., "24")</p>',
     name: 'age',
-    required: false
+    required: true
   }],
   data: {
     phase: 'demographics_survey'
+  }
+};
+
+// Age check - redirect if under 18
+const age_check = {
+  timeline: [
+    {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: '<p style="font-size:1.5vw">Thank you for your interest in this study. However, participation is restricted to individuals 18 years of age or older.<br><br>You will not receive SONA credit for this incomplete session.<br><br>Redirecting back to SONA...</p>',
+      choices: [],
+      trial_duration: 5000,
+      on_finish: function() {
+        window.location.href = 'https://albany.sona-systems.com/';
+      }
+    }
+  ],
+  conditional_function: function() {
+    // Get the data from the age question
+    const age_data = jsPsych.data.get().filter({phase: 'demographics_survey'}).last(1).values()[0];
+    const age = parseInt(age_data.response.age);
+    // Redirect if age is less than 18
+    return age < 18;
   }
 };
 
@@ -566,7 +588,7 @@ var demographics_gender = {
       "Non-binary/gender non-conforming",
       "Other",
       "Prefer not to say"],
-    required: false,
+    required: true,
     vertical: true
   }],
   data: {
@@ -579,7 +601,7 @@ var demographics_gender_other = {
   questions: [{
     prompt: '<p style=font-size:1.5vw>If you selected "Other", please specify. If you chose another option please answer "N/A"</p>',
     name: 'gender_other',
-    required: false,
+    required: true,
     vertical: true
   }],
   data: {
@@ -599,7 +621,7 @@ var demographics_race = {
       "Indigenous or Native American",
       "White or Caucasian",
       "Multiracial"],
-    required: false,
+    required: true,
     vertical: true
   }],
   data: {
@@ -720,6 +742,19 @@ timeline.push({
 // Overall task instructions
 timeline.push(initial_instructions);
 
+// Add demographics
+timeline.push(demographics_age);
+timeline.push(age_check);
+timeline.push(demographics_gender);
+timeline.push({
+  timeline: [demographics_gender_other],
+  conditional_function: function() {
+    var data = jsPsych.data.get().filter({phase: 'demographics_gender'}).last(1).values()[0];
+    return data.response.gender && data.response.gender.includes('Other');
+  }
+});
+timeline.push(demographics_race);
+
 timeline.push({
   type: jsPsychHtmlKeyboardResponse,
   stimulus: '<p style="font-size:4vw">Visual Search Task</p>',
@@ -775,18 +810,6 @@ timeline.push({
 });
 
 timeline.push(Big_5_survey);
-
-// Add demographics
-timeline.push(demographics_age);
-timeline.push(demographics_gender);
-timeline.push({
-  timeline: [demographics_gender_other],
-  conditional_function: function() {
-    var data = jsPsych.data.get().filter({phase: 'demographics_gender'}).last(1).values()[0];
-    return data.response.gender && data.response.gender.includes('Other');
-  }
-});
-timeline.push(demographics_race);
 
 timeline.push(debriefing_mindfulness);
 
