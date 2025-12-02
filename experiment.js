@@ -413,7 +413,7 @@ var keyDisplay = randomKey;
 var initial_instructions = {
   type: jsPsychInstructions,
   pages: [
-    `<p style="font-size:4vw">Welcome!</p><br><br><p style="font-size:1.5vw">Thanks for reading and agreeing to the consent form. In this study you will complete two tasks: First, you will complete a visual search task where we ask you to indicate if a shape is present amongst other shapes. After completing the visual search task, you will complete a questionnaire about yourself, how mindful you are, and your life satisfaction. The study takes about 40-45 minutes to complete. All responses will remain anonymous.</p><br><br><p style="font-size:1.5vw; font-weight:bold; color:#2196F3;">To continue, press the ${keyDisplay} key when you are ready to beign.</p>`
+    `<p style="font-size:4vw">Welcome!</p><br><br><p style="font-size:1.5vw">Thanks for reading and agreeing to the consent form. In this study you will complete three tasks: First, you will complete a demographic survey. Next, you will complete a visual search task where we ask you to indicate if a shape is present amongst other shapes. After completing the visual search task, you will complete three questionnaires about yourself: the first asks about how mindful you are, the second asks about your life satisfaction, and the last asks about your personality. The study takes about 40-45 minutes to complete. All responses will remain anonymous.</p><br><br><p style="font-size:1.5vw; font-weight:bold; color:#2196F3;">To continue, press the ${keyDisplay} key when you are ready to beign.</p>`
   ],
   show_clickable_nav: false,
   key_forward: randomKey,
@@ -552,28 +552,6 @@ var demographics_age = {
   }
 };
 
-// Age check - redirect if under 18
-const age_check = {
-  timeline: [
-    {
-      type: jsPsychHtmlButtonResponse,
-      stimulus: '<p style="font-size:1.5vw">Thank you for your interest in this study. However, participation is restricted to individuals 18 years of age or older.<br><br>You will not receive SONA credit for this incomplete session.<br><br>Redirecting back to SONA...</p>',
-      choices: [],
-      trial_duration: 5000,
-      on_finish: function() {
-        window.location.href = 'https://albany.sona-systems.com/';
-      }
-    }
-  ],
-  conditional_function: function() {
-    // Get the data from the age question
-    const age_data = jsPsych.data.get().filter({phase: 'demographics_survey'}).last(1).values()[0];
-    const age = parseInt(age_data.response.age);
-    // Redirect if age is less than 18
-    return age < 18;
-  }
-};
-
 var demographics_gender = {
   type: jsPsychSurveyMultiSelect,
   questions: [{
@@ -650,7 +628,7 @@ var debriefing_mindfulness = {
       </h2>
       <p style="margin-bottom: 15px;">The purpose of this study was to examine the relationship between attention, mindfulness, and life satisfaction. Specifically, we wanted to explore whether:</p>
       <ul style="margin: 10px 0 15px 25px; padding: 0;">
-        <li style="margin-bottom: 8px;">Greater levels of mindfulness (awareness of the present moment) are associated with better attentional control</li>
+        <li style="margin-bottom: 8px;">Greater levels of mindfulness (awareness of the present moment) are associated with better attentional control (the ability to focus on specific aspects of the environement while 'tuning out' distractions</li>
         <li style="margin-bottom: 8px;">Mindfulness and attention are related to overall life satisfaction</li>
         <li style="margin-bottom: 8px;">These relationships hold across people with different levels of conscientiousness</li>
       </ul>
@@ -729,22 +707,47 @@ timeline.push(consent);
 
 timeline.push(consent_check);
 
-// Preload images now, so they don't lag later
-timeline.push({
-  type: jsPsychPreload,
-  images: image_files,
-  data: {
-    phase: 'image_preload'
-  }
-});
-
 // Overall task instructions
 timeline.push(initial_instructions);
 
+timeline.push({
+  type: jsPsychHtmlKeyboardResponse,
+  stimulus: '<p style="font-size:4vw">Demographic Questionnaire</p>',
+  choices: 'NO_KEYS',
+  trial_duration: 2000,
+  response_ends_trial: false,
+  data: {
+    phase: 'intermediate_slide_demo'
+  }
+});
+
 // Add demographics
 timeline.push(demographics_age);
-timeline.push(age_check);
+
+// Age check - redirect if under 18
+timeline.push({
+  timeline: [
+    {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: '<p style="font-size:1.5vw">Thank you for your interest in this study. However, participation is restricted to individuals 18 years of age or older.<br><br>You will not receive SONA credit for this incomplete session.<br><br>Redirecting back to SONA...</p>',
+      choices: [],
+      trial_duration: 5000,
+      on_finish: function() {
+        window.location.href = 'https://albany.sona-systems.com/';
+      }
+    }
+  ],
+  conditional_function: function() {
+    // Get the data from the age question
+    const age_data = jsPsych.data.get().filter({phase: 'demographics_survey'}).last(1).values()[0];
+    const age = parseInt(age_data.response.age);
+    // Redirect if age is less than 18
+    return age < 18;
+  }
+});
+
 timeline.push(demographics_gender);
+
 timeline.push({
   timeline: [demographics_gender_other],
   conditional_function: function() {
@@ -752,6 +755,7 @@ timeline.push({
     return data.response.gender && data.response.gender.includes('Other');
   }
 });
+
 timeline.push(demographics_race);
 
 timeline.push({
@@ -762,6 +766,15 @@ timeline.push({
   response_ends_trial: false,
   data: {
     phase: 'intermediate_slide_VS'
+  }
+});
+
+// Preload images now, so they don't lag later
+timeline.push({
+  type: jsPsychPreload,
+  images: image_files,
+  data: {
+    phase: 'image_preload'
   }
 });
 
