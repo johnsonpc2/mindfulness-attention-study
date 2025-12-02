@@ -370,7 +370,7 @@ const consent = {
           <li style="margin-bottom: 8px;">I must complete the study to earn SONA credit</li>
           <li style="margin-bottom: 8px;">I am at least 18 years old</li>
         </ul>
-        <p style="margin-bottom: 15px; font-weight: bold;">By clicking "I Agree" below, I confirm that I agree to participate in the research study described above.<br> If you would like a copy of this consent form for your records, you have the ability to print a copy of the form by pressing Cmd + P or Ctrl + P and printing this page to PDF.</p>
+        <p style="margin-bottom: 15px; font-weight: bold;">By clicking "I Agree" below, I confirm that I agree to participate in the research study described above.<br><br> If you would like a copy of this consent form for your records, you have the ability to print a copy of the form by pressing Cmd + P or Ctrl + P and printing this page to PDF.</p>
       </div>
     </div>
   `,
