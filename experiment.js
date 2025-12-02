@@ -436,7 +436,7 @@ var vs_instructions = {
   }
 };
 
-var likert_scale = [
+var mindfulness_likert_scale = [
   "Almost Always", 
   "Very Frequently", 
   "Somewhat Frequently", 
@@ -447,22 +447,23 @@ var likert_scale = [
 
 var mindfulness_survey = {
   type: jsPsychSurveyLikert,
+  preamble: "<p>Below is a collection of statements about your everyday experience. Using the scale below, please indicate how frequently or infrequently you currently have each experience. Please answer according to what really reflects your experience rather than what you think your experience should be. Please treat each item separately from every other item.</p>",
   questions: [
-    {prompt: "I could experiencing some emotion and not be concious of it until some time later.", name: 'Emotion', labels: likert_scale},
-    {prompt: "I break or spill things because of carelessness, not paying attention, or thinking of something else.", name: 'Carelessness', labels: likert_scale},
-    {prompt: "I find it difficult to stay focused on whats happening in the present.", name: 'Focus', labels: likert_scale},
-    {prompt: "I tend to walk quickly to get where I'm going without paying attention to what I experience along the way.", name: 'Walking', labels: likert_scale},
-    {prompt: "I tend not to notice feelings of physical tension or discomfort until they really grab my attention.", name: 'Feelings', labels: likert_scale},
-    {prompt:"I forget a person's name almost as soon as I've been told it for the first time.", name: 'Names', labels: likert_scale},
-    {prompt:"It seems I am 'running on automatic,' without much awareness of what I'm doing.", name: 'Automatic', labels: likert_scale},
-    {prompt:"I rush through activities without being really attentive to them.", name: 'Rush', labels: likert_scale},
-    {prompt:"I get so focused on the goal I want to achieve that I lose touch with what I'm doing right now to get there.", name: 'Now', labels: likert_scale},
-    {prompt:"I do jobs or tasks automatically, without being aware of what I'm doing.", name: 'Tasks', labels: likert_scale},
-    {prompt:"I find myself listening to someone with one ear, doing something else at the same time.", name: 'Multitasking', labels: likert_scale},
-    {prompt:"I drive places on 'automatic pilot' and then wonder why I went there.", name: 'Driving', labels: likert_scale},
-    {prompt:"I find myself preoccupied with the future or the past.", name: 'Preoccupied', labels: likert_scale},
-    {prompt:"I find myself doing things without paying attention.", name: 'Attention', labels: likert_scale},
-    {prompt:"I snack without being aware that I'm eating.", name: 'Eat', labels: likert_scale}],
+    {prompt: "I could experiencing some emotion and not be concious of it until some time later.", name: 'Emotion', labels: mindfulness_likert_scale},
+    {prompt: "I break or spill things because of carelessness, not paying attention, or thinking of something else.", name: 'Carelessness', labels: mindfulness_likert_scale},
+    {prompt: "I find it difficult to stay focused on whats happening in the present.", name: 'Focus', labels: mindfulness_likert_scale},
+    {prompt: "I tend to walk quickly to get where I'm going without paying attention to what I experience along the way.", name: 'Walking', labels: mindfulness_likert_scale},
+    {prompt: "I tend not to notice feelings of physical tension or discomfort until they really grab my attention.", name: 'Feelings', labels: mindfulness_likert_scale},
+    {prompt:"I forget a person's name almost as soon as I've been told it for the first time.", name: 'Names', labels: mindfulness_likert_scale},
+    {prompt:"It seems I am 'running on automatic,' without much awareness of what I'm doing.", name: 'Automatic', labels: mindfulness_likert_scale},
+    {prompt:"I rush through activities without being really attentive to them.", name: 'Rush', labels: mindfulness_likert_scale},
+    {prompt:"I get so focused on the goal I want to achieve that I lose touch with what I'm doing right now to get there.", name: 'Now', labels: mindfulness_likert_scale},
+    {prompt:"I do jobs or tasks automatically, without being aware of what I'm doing.", name: 'Tasks', labels: mindfulness_likert_scale},
+    {prompt:"I find myself listening to someone with one ear, doing something else at the same time.", name: 'Multitasking', labels: mindfulness_likert_scale},
+    {prompt:"I drive places on 'automatic pilot' and then wonder why I went there.", name: 'Driving', labels: mindfulness_likert_scale},
+    {prompt:"I find myself preoccupied with the future or the past.", name: 'Preoccupied', labels: mindfulness_likert_scale},
+    {prompt:"I find myself doing things without paying attention.", name: 'Attention', labels: mindfulness_likert_scale},
+    {prompt:"I snack without being aware that I'm eating.", name: 'Eat', labels: mindfulness_likert_scale}],
     randomize_question_order: true,
     scale_width: window.innerWidth * 0.7,
     data: {
@@ -470,69 +471,89 @@ var mindfulness_survey = {
   }
 };
 
+var satisfaction_likert_scale = [
+  "Strongly agree", 
+  "Agree", 
+  "Slightly agree", 
+  "Neither agree nor disagree", 
+  "Slightly disagree",
+  "Disagree",
+  "Strongly disagree"
+];
+
 var Satisfaction_Survey = {
   type: jsPsychSurveyLikert,
+  preamble: "<p>Below are five statements that you may agree or disagree with. Indicate your agreement with each item by tapping the appropriate box, from strongly agree, to strongly disagree. Please be open and honest in your responding.</p>",
   questions: [
-    {prompt: "In most ways my life is close to my ideal.", name: 'Ideal', labels: likert_scale},
-    {prompt: "The conditions of my life are excellent.", name: 'Conditions', labels: likert_scale},
-    {prompt: "I am satisfied with my life", name: 'Satisfied', labels: likert_scale},
-    {prompt: "So far I have gotten the important things I want in life.", name: 'Important', labels: likert_scale},
-    {prompt: "If I could live my life over, I would change almost nothing.", name: 'Change', labels: likert_scale}],
+    {prompt: "In most ways my life is close to my ideal.", name: 'Ideal', labels: satisfaction_likert_scale},
+    {prompt: "The conditions of my life are excellent.", name: 'Conditions', labels: satisfaction_likert_scale},
+    {prompt: "I am satisfied with my life.", name: 'Satisfied', labels: satisfaction_likert_scale},
+    {prompt: "So far I have gotten the important things I want in life.", name: 'Important', labels: satisfaction_likert_scale},
+    {prompt: "If I could live my life over, I would change almost nothing.", name: 'Change', labels: satisfaction_likert_scale}],
     randomize_question_order: true,
     scale_width: window.innerWidth * 0.7,
     data: {
     phase: 'satisfaction_survey'
   }
 };
+
+var personality_likert_scale = [
+  "Agree strongly",
+  "Agree a little", 
+  "Neither agree nor disagree",
+  "Disagree a little",
+  "Disagree strongly"
+];
+
 var Big_5_survey = {
   type: jsPsychSurveyLikert,
   preamble: "<p>Here are a number of characteristics that may or may not apply to you. For example, do you agree that you are someone who likes to spend time with others? Please indicate for each statement the extent to which you agree or disagree with that statement.</p>" + "<p>I see myself as someone who...</p>",
   questions: [
-    {prompt: "Is talkative", name: 'Talkative', labels: likert_scale},
-    {prompt: "Tends to find fault with others", name: 'Fault', labels: likert_scale},
-    {prompt: "Does a thorough job", name: 'Thorough', labels: likert_scale},
-    {prompt: "Is depressed, blue", name: 'Depressed', labels: likert_scale},
-    {prompt: "Is originial, comes up with new ideas", name: 'Original', labels: likert_scale},
-    {prompt: "Is reserved", name: 'Reserved', labels: likert_scale},
-    {prompt: "Is helpful and unselfish with others", name: 'Unselfish', labels: likert_scale},
-    {prompt: "Can be somewhat careless", name: 'Careless', labels: likert_scale},
-    {prompt: "Is relaxed, handles stress well", name: 'relaxed', labels: likert_scale},
-    {prompt: "Is curious about many different things", name: 'Curious', labels: likert_scale},
-    {prompt: "Is full of energy", name: 'Energetic', labels: likert_scale},
-    {prompt: "Starts quarrels with others ", name: 'Quarrels', labels: likert_scale},
-    {prompt: "Is a reliable worker", name: 'Reliable', labels: likert_scale},
-    {prompt: "Can be tense", name: 'Tense', labels: likert_scale},
-    {prompt: "Is ingenious, a deep thinker", name: 'Ingenious', labels: likert_scale},
-    {prompt: "Generates a lot of enthusiasm", name: 'Enthusiastic', labels: likert_scale},
-    {prompt: "Has a forgiving nature", name: 'Forgiving', labels: likert_scale},
-    {prompt: "Tends to be disorganized", name: 'Disorganzied', labels: likert_scale},
-    {prompt: "Worries a lot", name: 'Worries', labels: likert_scale},
-    {prompt: "Has an active imagination", name: 'imagination', labels: likert_scale},
-    {prompt: "Tends to be quiet", name: 'quiet', labels: likert_scale},
-    {prompt: "Is generally trusting", name: 'trusting', labels: likert_scale},
-    {prompt: "Tends to be lazy", name: 'Lazy', labels: likert_scale},
-    {prompt: "Is emotionally stable, not easily upset", name: 'stable', labels: likert_scale},
-    {prompt: "Is inventive", name: 'inventive', labels: likert_scale},
-    {prompt: "Has an assertive personality", name: 'Assertive', labels: likert_scale},
-    {prompt: "Can be cold and aloof", name: 'aloof', labels: likert_scale},
-    {prompt: "Perseveres unti the task is finished", name: 'perservere', labels: likert_scale},
-    {prompt: "Can be moody", name: 'moody', labels: likert_scale},
-    {prompt: "Values artistic, aesthetic experiences", name: 'aesthetic', labels: likert_scale},
-    {prompt: "Is sometimes shy, inhibited", name: 'shy', labels: likert_scale},
-    {prompt: "Is considerate and kind to almost everyone", name: 'kind', labels: likert_scale},
-    {prompt: "Does things efficiently", name: 'Efficient', labels: likert_scale},
-    {prompt: "Remains calm in tense situations", name: 'calm', labels: likert_scale},
-    {prompt: "Prefers work that is routine", name: 'routine', labels: likert_scale},
-    {prompt: "Is outgoingm sociable", name: 'social', labels: likert_scale},
-    {prompt: "Is sometimes rude to others", name: 'rude', labels: likert_scale},
-    {prompt: "Makes plans and follows through with them", name: 'plans', labels: likert_scale},
-    {prompt: "Gets nervous easily", name: 'Nervous', labels: likert_scale},
-    {prompt: "Likes to reflect, play with ideas", name: 'reflect', labels: likert_scale},
-    {prompt: "Has few artistic interest", name: 'artistic', labels: likert_scale},
-    {prompt: "Is full of energy", name: 'Energetic', labels: likert_scale},
-    {prompt: "likes to cooperate with others", name: 'cooperate', labels: likert_scale},
-    {prompt: "Is easily distracted", name: 'distracted', labels: likert_scale},
-    {prompt: "Is sophisticated in art, music, or literature", name: 'sophisticated', labels: likert_scale}
+    {prompt: "Is talkative", name: 'Talkative', labels: personality_likert_scale},
+    {prompt: "Tends to find fault with others", name: 'Fault', labels: personality_likert_scale},
+    {prompt: "Does a thorough job", name: 'Thorough', labels: personality_likert_scale},
+    {prompt: "Is depressed, blue", name: 'Depressed', labels: personality_likert_scale},
+    {prompt: "Is originial, comes up with new ideas", name: 'Original', labels: personality_likert_scale},
+    {prompt: "Is reserved", name: 'Reserved', labels: personality_likert_scale},
+    {prompt: "Is helpful and unselfish with others", name: 'Unselfish', labels: personality_likert_scale},
+    {prompt: "Can be somewhat careless", name: 'Careless', labels: personality_likert_scale},
+    {prompt: "Is relaxed, handles stress well", name: 'relaxed', labels: personality_likert_scale},
+    {prompt: "Is curious about many different things", name: 'Curious', labels: personality_likert_scale},
+    {prompt: "Is full of energy", name: 'Energetic', labels: personality_likert_scale},
+    {prompt: "Starts quarrels with others ", name: 'Quarrels', labels: personality_likert_scale},
+    {prompt: "Is a reliable worker", name: 'Reliable', labels: personality_likert_scale},
+    {prompt: "Can be tense", name: 'Tense', labels: personality_likert_scale},
+    {prompt: "Is ingenious, a deep thinker", name: 'Ingenious', labels: personality_likert_scale},
+    {prompt: "Generates a lot of enthusiasm", name: 'Enthusiastic', labels: personality_likert_scale},
+    {prompt: "Has a forgiving nature", name: 'Forgiving', labels: personality_likert_scale},
+    {prompt: "Tends to be disorganized", name: 'Disorganzied', labels: personality_likert_scale},
+    {prompt: "Worries a lot", name: 'Worries', labels: personality_likert_scale},
+    {prompt: "Has an active imagination", name: 'imagination', labels: personality_likert_scale},
+    {prompt: "Tends to be quiet", name: 'quiet', labels: personality_likert_scale},
+    {prompt: "Is generally trusting", name: 'trusting', labels: personality_likert_scale},
+    {prompt: "Tends to be lazy", name: 'Lazy', labels: personality_likert_scale},
+    {prompt: "Is emotionally stable, not easily upset", name: 'stable', labels: personality_likert_scale},
+    {prompt: "Is inventive", name: 'inventive', labels: personality_likert_scale},
+    {prompt: "Has an assertive personality", name: 'Assertive', labels: personality_likert_scale},
+    {prompt: "Can be cold and aloof", name: 'aloof', labels: personality_likert_scale},
+    {prompt: "Perseveres unti the task is finished", name: 'perservere', labels: personality_likert_scale},
+    {prompt: "Can be moody", name: 'moody', labels: personality_likert_scale},
+    {prompt: "Values artistic, aesthetic experiences", name: 'aesthetic', labels: personality_likert_scale},
+    {prompt: "Is sometimes shy, inhibited", name: 'shy', labels: personality_likert_scale},
+    {prompt: "Is considerate and kind to almost everyone", name: 'kind', labels: personality_likert_scale},
+    {prompt: "Does things efficiently", name: 'Efficient', labels: personality_likert_scale},
+    {prompt: "Remains calm in tense situations", name: 'calm', labels: personality_likert_scale},
+    {prompt: "Prefers work that is routine", name: 'routine', labels: personality_likert_scale},
+    {prompt: "Is outgoingm sociable", name: 'social', labels: personality_likert_scale},
+    {prompt: "Is sometimes rude to others", name: 'rude', labels: personality_likert_scale},
+    {prompt: "Makes plans and follows through with them", name: 'plans', labels: personality_likert_scale},
+    {prompt: "Gets nervous easily", name: 'Nervous', labels: personality_likert_scale},
+    {prompt: "Likes to reflect, play with ideas", name: 'reflect', labels: personality_likert_scale},
+    {prompt: "Has few artistic interest", name: 'artistic', labels: personality_likert_scale},
+    {prompt: "Is full of energy", name: 'Energetic', labels: personality_likert_scale},
+    {prompt: "likes to cooperate with others", name: 'cooperate', labels: personality_likert_scale},
+    {prompt: "Is easily distracted", name: 'distracted', labels: personality_likert_scale},
+    {prompt: "Is sophisticated in art, music, or literature", name: 'sophisticated', labels: personality_likert_scale}
     ],
     scale_width: window.innerWidth * 0.7,
     data: {
@@ -665,7 +686,7 @@ var debriefing_mindfulness = {
         <p style="margin-bottom: 15px;">
           <strong>Principal Investigator:</strong> Ella M. Bremmer<br>
           Email: ebremmer@albany.edu<br><br>
-          <strong>Co-Principal Investigator:</strong> Pierce Johnson<br>
+          <strong>Co-Principal Investigator:</strong> Pierce C. Johnson<br>
           Email: pjohnson4@albany.edu<br><br>
           <strong>Faculty Advisor:</strong> Gregory Cox, PhD<br>
           Email: gecox@albany.edu
@@ -688,7 +709,7 @@ var debriefing_mindfulness = {
           <li style="margin-bottom: 8px;">Be redirected to SONA to receive your research credit</li>
           <li style="margin-bottom: 8px;">Have your participation recorded in the SONA system</li>
         </ul>
-        <p style="margin-bottom: 0; font-weight: bold; color: #856404;">Thank you again for your valuable contribution to psychological research!</p>
+        <p style="margin-bottom: 0; font-weight: bold; color: #856404;">Thank you again for your contribution to psychological research!</p>
       </div>
     </div>
   `,
