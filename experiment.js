@@ -561,7 +561,25 @@ var Big_5_survey = {
   }
     };
 
-// Demographics survey: a block for entering age, gender, and race
+// Demographics survey: a block for entering English proficiency, age, gender, and race
+var demographics_english = {
+  type: jsPsychSurveyMultiChoice,
+  questions: [{
+    prompt: '<p style=font-size:1.5vw>Which of the following best describes your agreement to the following statement: I can fluently read and communicate in English.</p>',
+    name: 'english',
+    options: [
+      "Strongly disagree",
+      "Disagree",
+      "Neither agree nor disagree",
+      "Agree",
+      "Strongly agree"],
+    required: true
+  }],
+  data: {
+    phase: 'demographics_english'
+  }
+};
+
 var demographics_age = {
   type: jsPsychSurveyText,
   questions: [{
@@ -570,7 +588,7 @@ var demographics_age = {
     required: true
   }],
   data: {
-    phase: 'demographics_survey'
+    phase: 'demographics_age'
   }
 };
 
@@ -744,6 +762,30 @@ timeline.push({
 });
 
 // Add demographics
+timeline.push(demographics_english);
+
+// English fluency check - redirect if not proficient
+timeline.push({
+  timeline: [
+    {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: '<p style="font-size:1.5vw">Thank you for your interest in this study. However, participation is restricted to individuals who are fluent in English.<br><br>You will not receive SONA credit for this incomplete session.<br><br>Redirecting back to SONA...</p>',
+      choices: [],
+      trial_duration: 5000,
+      on_finish: function() {
+        window.location.href = 'https://albany.sona-systems.com/';
+      }
+    }
+  ],
+  conditional_function: function() {
+    // Get the data from the English proficiency question
+    const english_data = jsPsych.data.get().filter({phase: 'demographics_english'}).last(1).values()[0];
+    const response = english_data.response.english;
+    // Redirect if they selected anything other than "Agree" or "Strongly agree"
+    return response !== "Agree" && response !== "Strongly agree";
+  }
+});
+
 timeline.push(demographics_age);
 
 // Age check - redirect if under 18
