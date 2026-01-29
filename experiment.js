@@ -544,7 +544,7 @@ var Big_5_survey = {
 var demographics_english = {
   type: jsPsychSurveyMultiChoice,
   questions: [{
-    prompt: '<p style=font-size:1.5vw>Which of the following best describes your agreement to the following statement: I can fluently read and communicate in English.</p>',
+    prompt: '<p style=font-size:1.5vw>Which of the following best describes your agreement to the following statement: <br><br>I can fluently read and communicate in English.</p>',
     name: 'english',
     options: [
       "Strongly disagree",
@@ -562,7 +562,7 @@ var demographics_english = {
 var demographics_age = {
   type: jsPsychSurveyText,
   questions: [{
-    prompt: '<p style=font-size:1.5vw>Please enter your age in numerals (e.g., "24")</p>',
+    prompt: '<p style=font-size:1.5vw>Please enter your age (e.g., "24")</p>',
     name: 'age',
     required: true
   }],
