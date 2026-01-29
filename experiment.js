@@ -782,7 +782,7 @@ timeline.push({
   ],
   conditional_function: function() {
     // Get the data from the age question
-    const age_data = jsPsych.data.get().filter({phase: 'demographics_survey'}).last(1).values()[0];
+    const age_data = jsPsych.data.get().filter({phase: 'demographics_age'}).last(1).values()[0];
     const age = parseInt(age_data.response.age);
     // Redirect if age is less than 18
     return age < 18;
