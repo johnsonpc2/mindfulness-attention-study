@@ -95,6 +95,24 @@ const jsPsych = initJsPsych({
   }
 });
 
+// Add reminder instructions to visual search trials via CSS
+var reminderStyle = document.createElement('style');
+reminderStyle.innerHTML = `
+  #jspsych-visual-search-circle-container::after {
+    content: "Press F if red triangle is PRESENT  |  Press J if red triangle is ABSENT";
+    display: block;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 30px;
+    padding: 15px;
+    background-color: #f0f0f0;
+    border-radius: 5px;
+    color: #333;
+  }
+`;
+document.head.appendChild(reminderStyle);
+
 // Define the stimuli in their own object
 const image_files = [
   'images/Blue_Circle.png',
@@ -168,13 +186,11 @@ for (var block = 0; block < NumBlocks; block++) {
         var trial = {
           type: jsPsychVisualSearchCircle,
           stimuli: stimuli,
-          fixation_image: fixation_cross,
           fixation_duration: 1500,
           target_present: Target[j] === 'present',
           target_present_key: 'f',
           target_absent_key: 'j',
           target_size: [400, 400],
-          prompt: '<p style="font-size: 18px; margin-top: 20px;"><strong>Press F</strong> if red triangle present, <strong>Press J</strong> if red triangle absent</p>',
           data: {
             set_size: StimSetSize[i],
             distractor_type: DistractorNames[k],
