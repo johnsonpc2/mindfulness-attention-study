@@ -99,14 +99,14 @@ const jsPsych = initJsPsych({
 var reminderStyle = document.createElement('style');
 reminderStyle.innerHTML = `
   #jspsych-visual-search-circle-container::after {
-    content: "Press F if red triangle is PRESENT  |  Press J if red triangle is ABSENT";
+    content: "Red triangle PRESENT: F  |  Red triangle ABSENT: J";
     display: block;
     text-align: center;
     font-size: 20px;
     font-weight: bold;
     margin-top: 30px;
     padding: 15px;
-    background-color: #f0f0f0;
+    background-color: #ffffff;
     border-radius: 5px;
     color: #333;
   }
