@@ -186,6 +186,7 @@ for (var block = 0; block < NumBlocks; block++) {
         var trial = {
           type: jsPsychVisualSearchCircle,
           stimuli: stimuli,
+          fixation_image: fixation_cross,
           fixation_duration: 1500,
           target_present: Target[j] === 'present',
           target_present_key: 'f',
