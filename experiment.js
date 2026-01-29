@@ -99,7 +99,7 @@ const jsPsych = initJsPsych({
 var reminderStyle = document.createElement('style');
 reminderStyle.innerHTML = `
   #jspsych-visual-search-circle-container::after {
-    content: "Red Triangle: F &emsp; &emsp; &emsp; &emsp;No Red Triangle: J";
+    content: "Red Triangle: F    |    No Red Triangle: J";
     display: block;
     text-align: center;
     font-size: 20px;
