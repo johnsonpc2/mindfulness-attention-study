@@ -174,6 +174,7 @@ for (var block = 0; block < NumBlocks; block++) {
           target_present_key: 'f',
           target_absent_key: 'j',
           target_size: [400, 400],
+          prompt: '<p style="font-size: 18px; margin-top: 20px;"><strong>Press F</strong> if red triangle present, <strong>Press J</strong> if red triangle absent</p>',
           data: {
             set_size: StimSetSize[i],
             distractor_type: DistractorNames[k],
