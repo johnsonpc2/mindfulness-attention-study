@@ -283,11 +283,11 @@ const consent = {
         What will I do if I choose to be in this study?
       </h3>
       <p style="margin-bottom: 10px;">If you choose to take part in our study, you will do the following:</p>
-      <p style="margin-bottom: 8px; margin-left: 20px;">Read and agree to the informed consent.</p>
-      <p style="margin-bottom: 8px; margin-left: 20px;">If you choose not to agree to the informed consent, you will be taken back to the SONA site.</p>
-      <p style="margin-bottom: 8px; margin-left: 20px;">Complete a demographic questionnaire that asks about your age, English proficiency, gender, and race.</p>
-      <p style="margin-bottom: 8px; margin-left: 20px;">Read instructions for the visual search task, which asks you to indicate if a target (a red triangle) is present among various other colored shapes. You should press the "F" key if a red triangle is present, or the "J" key if the target is absent.</p>
-      <p style="margin-bottom: 25px; margin-left: 20px;">You will be asked to respond to 270 visual search trials, which the opportunity to take short breaks as you go</p>
+      <p style="margin-bottom: 8px; margin-left: 20px;">1. Read and agree to the informed consent.</p>
+      <p style="margin-bottom: 8px; margin-left: 25px;">a. If you choose not to agree to the informed consent, you will be taken back to the SONA site.</p>
+      <p style="margin-bottom: 8px; margin-left: 20px;">2. Complete a demographic questionnaire that asks about your age, English proficiency, gender, and race.</p>
+      <p style="margin-bottom: 8px; margin-left: 20px;">3. Read instructions for the visual search task, which asks you to indicate if a target (a red triangle) is present among various other colored shapes. You should press the "F" key if a red triangle is present, or the "J" key if the target is absent.</p>
+      <p style="margin-bottom: 25px; margin-left: 20px;">4. You will be asked to respond to 270 visual search trials, which the opportunity to take short breaks as you go</p>
 
       <h3 style="color: #333; font-size: 18px; margin-top: 25px; margin-bottom: 10px; font-weight: bold;">
         For how long will I participate?
