@@ -367,7 +367,7 @@ const consent = {
 
       <div style="background-color: #f9f9f9; border: 2px solid #4CAF50; border-radius: 5px; padding: 20px; margin-top: 20px; margin-bottom: 20px;">
         <p style="margin-bottom: 15px; font-weight: bold;">To save a copy of this consent form for your records, press Ctrl+P (Windows/Linux) or Cmd+P (Mac) and select "Save as PDF".</p>
-        <p style="margin-bottom: 0; font-weight: bold;">By clicking "I Agree" below, I confirm that I agree to participate in the research study described above.</p>
+        <p style="margin-bottom: 0; font-weight: bold;">By clicking "I Agree" below, I confirm that I agree to participate in the research study described above, and that doing so serves as my written signature consenting to take part in the study.</p>
       </div>
     </div>
   `,
