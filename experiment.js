@@ -287,7 +287,7 @@ const consent = {
       <p style="margin-bottom: 8px; margin-left: 40px;">a. If you choose not to agree to the informed consent, you will be taken back to the SONA site.</p>
       <p style="margin-bottom: 8px; margin-left: 20px;">2. Complete a demographic questionnaire that asks about your age, English proficiency, gender, and race.</p>
       <p style="margin-bottom: 8px; margin-left: 20px;">3. Read instructions for the visual search task, which asks you to indicate if a target (a red triangle) is present among various other colored shapes. You should press the "F" key if a red triangle is present, or the "J" key if the target is absent.</p>
-      <p style="margin-bottom: 25px; margin-left: 20px;">4. You will be asked to respond to 270 visual search trials, which the opportunity to take short breaks as you go</p>
+      <p style="margin-bottom: 25px; margin-left: 20px;">4. You will be asked to respond to 270 visual search trials, whith the opportunity to take short breaks as you go</p>
 
       <h3 style="color: #333; font-size: 18px; margin-top: 25px; margin-bottom: 10px; font-weight: bold;">
         For how long will I participate?
@@ -336,9 +336,9 @@ const consent = {
       <h3 style="color: #333; font-size: 18px; margin-top: 25px; margin-bottom: 10px; font-weight: bold;">
         What are my rights as a research participant?
       </h3>
-      <p style="margin-bottom: 15px;">Participation in this study is voluntary. You do not have to answer any question you do not want to answer. If at any time and for any reason, you would prefer not to participate in this study, please feel free not to. If at any time you would like to stop participating, please tell me. We can take a break or stop altogether. You may withdraw from this study at any time, and you will not be penalized in any way for deciding to stop participation.</p>
+      <p style="margin-bottom: 15px;">Participation in this study is voluntary. You do not have to answer any question you do not want to answer. If at any time and for any reason, you would prefer not to participate in this study, please feel free not to. If at any time you would like to stop participating, you are welcome to stop. You can take a break or stop altogether. You may withdraw from this study at any time, and you will not be penalized in any way for deciding to stop participation.</p>
       
-      <p style="margin-bottom: 25px;">If you decide to withdraw from this study, any information collected from the participant will not be used if the participant decides to withdraw before finishing the study.</p>
+      <p style="margin-bottom: 25px;">If you decide to withdraw from this study, any information collected from you before withdrawing will not be used, and your data will be deleted.</p>
 
       <h3 style="color: #333; font-size: 18px; margin-top: 25px; margin-bottom: 10px; font-weight: bold;">
         What if I am a University at Albany student or employee?
