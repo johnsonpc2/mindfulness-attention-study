@@ -331,7 +331,7 @@ const consent = {
       <h3 style="color: #333; font-size: 18px; margin-top: 25px; margin-bottom: 10px; font-weight: bold;">
         Will my data be used in future research?
       </h3>
-      <p style="margin-bottom: 25px;">No personal identifiers will be collected in the data you provide us. This de-identified data could be used for future research studies or distributed to another investigator for future research studies without additional informed consent from you or your legally authorized representative.</p>
+      <p style="margin-bottom: 25px;">No personal identifiers will be collected in the data you provide us. This de-identified data could be used in future studies in our lab that seek to understand how mindfulness, attention, and life satisfaction are related, and may be done without additional informed consent from you or your legally authorized representative.</p>
 
       <h3 style="color: #333; font-size: 18px; margin-top: 25px; margin-bottom: 10px; font-weight: bold;">
         What are my rights as a research participant?
