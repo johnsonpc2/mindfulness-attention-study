@@ -289,7 +289,7 @@ const consent = {
       <p style="margin-bottom: 8px; margin-left: 20px;">3. Read instructions for the visual search task, which asks you to indicate if a target (a red triangle) is present among various other colored shapes. You should press the "F" key if a red triangle is present, or the "J" key if the target is absent.</p>
       <p style="margin-bottom: 8px; margin-left: 20px;">4. You will be asked to respond to 270 visual search trials, whith the opportunity to take short breaks as you go</p>
       <p style="margin-bottom: 8px; margin-left: 20px;">5. You will complete the Mindfulness Attention Awareness Scale (MAAS), the Satisfaction With Life Scale (SWLS), and the Big Five Inventory.</p>
-      <p style="margin-bottom: 25px; margin-left: 20px;">6.	After all questionnaires are completed, participants will be thanked for their time and will be provided the study debriefing. Following the debreifing, you will be sent back to the SONA research site.</p>
+      <p style="margin-bottom: 25px; margin-left: 20px;">6.	After all questionnaires are completed, participants will be thanked for their time and will be provided the study debriefing. Following the debriefing, you will be sent back to the SONA research site.</p>
 
       <h3 style="color: #333; font-size: 18px; margin-top: 25px; margin-bottom: 10px; font-weight: bold;">
         For how long will I participate?
