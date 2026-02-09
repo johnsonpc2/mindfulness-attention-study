@@ -95,6 +95,14 @@ const jsPsych = initJsPsych({
   }
 });
 
+// Get participant ID from URL parameters
+const urlParams = new URLSearchParams(window.location.search);
+const participantID = urlParams.get('participant') || 'unknown';
+
+jsPsych.data.addProperties({
+  sona_id: participantID
+});
+
 // Add reminder instructions to visual search trials via CSS
 var reminderStyle = document.createElement('style');
 reminderStyle.innerHTML = `
