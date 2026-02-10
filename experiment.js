@@ -741,6 +741,13 @@ var debriefing_mindfulness = {
   choices: ['Complete Study'],
   data: {
     phase: 'debriefing'
+  },
+  on_finish: function() {
+    // Get the participant ID that was captured at the start
+    const participantID = jsPsych.data.get().values()[0].sona_id;
+    
+    // Redirect to SONA credit granting URL
+    window.location.href = `https://albany.sona-systems.com/webstudy_credit.aspx?experiment_id=1782&credit_token=c761202f5234450288ae70336f84f93b&survey_code=${participantID}`;
   }
 };
 
