@@ -901,9 +901,41 @@ timeline.push({
 
 timeline.push(Big_5_survey);
 
+// Modified debriefing without redirect
+var debriefing_mindfulness = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus: `
+    <div style="max-width: 900px; margin: 0 auto; padding: 20px; text-align: left; line-height: 1.6;">
+      <!-- Keep all your existing HTML here -->
+    </div>
+  `,
+  choices: ['Complete Study'],
+  data: {
+    phase: 'debriefing'
+  }
+  // Remove the on_finish function from here
+};
+
 timeline.push(debriefing_mindfulness);
 
-timeline.push(pavlovia_finish);
+// Modified pavlovia_finish with redirect
+var pavlovia_finish_with_redirect = {
+  type: jsPsychPavlovia,
+  command: "finish",
+  dataFilter: function(data) {
+    // This ensures data is saved before redirect
+    return data;
+  },
+  completedCallback: function() {
+    // Get the participant ID
+    const participantID = jsPsych.data.get().values()[0].sona_id;
+    
+    // Redirect to SONA after data is saved
+    window.location.href = `https://albany.sona-systems.com/webstudy_credit.aspx?experiment_id=1782&credit_token=c761202f5234450288ae70336f84f93b&survey_code=${participantID}`;
+  }
+};
+
+timeline.push(pavlovia_finish_with_redirect);
 
 // Runs the timeline we created with all the code we've put on it
 jsPsych.run(timeline);
