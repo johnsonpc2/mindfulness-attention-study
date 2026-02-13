@@ -39,5 +39,35 @@ import_data(x = data_files$filepath) -> raw_data
 
 # Clean Data --------------------------------------------------------------
 
+local({
 
+  # Filter to just the demographic trials, and keep ID, the phase, and response
+  # columns
+  raw_data[
+    phase %like% "demographics",
+    list(sona_id, phase, response)
+  ] -> demo_temp
 
+  # Filter out the subjects who took the study multiple times or didn't give
+  # their age
+  demo_temp[!sona_id %in% c(78958, 79098, 78409, 79251)] -> demo_temp2
+
+  # Widen the responses to wide format so each subject only has one line
+  widen_responses(DT = demo_temp2) -> demo_temp3
+
+  # Save a list of subjects to keep and their IDs
+  demo_temp3[ , sona_id] -> demo_temp4
+
+  demo_data <- list(
+    "demographics" = demo_temp3,
+    "subjects to keep" = demo_temp4
+  )
+
+}) -> demo_data
+
+raw_data[
+  sona_id %in% demo_data$`subjects to keep` &
+    phase == "visual_search_trial",
+  list(sona_id, phase, rt, response, distractor_type, block, correct,
+       target_present)
+  ] -> clean_data
