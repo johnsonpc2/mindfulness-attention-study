@@ -88,7 +88,6 @@ local({
 
 }) -> demo_data
 
-
 # Visual Search Analysis --------------------------------------------------
 
 raw_data[
@@ -102,4 +101,18 @@ raw_data[
 vs_data[, `:=`(prop_correct = mean(correct),
                avg_rt = mean(rt)),
         by = list(sona_id)] -> vs_data
+
+# Survey Analysis ---------------------------------------------------------
+
+local({
+
+  raw_data[
+    sona_id %in% demo_data$`subjects to keep` &
+      phase %like% "survey",
+    list(sona_id, phase, response)
+  ] -> survey_temp
+
+  widen_responses(DT = survey_temp, prefix = "phase") -> survey_temp2
+
+}) -> survey_data
 
