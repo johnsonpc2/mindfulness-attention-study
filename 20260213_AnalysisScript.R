@@ -10,7 +10,7 @@
 
 # Setup -------------------------------------------------------------------
 
-# First we need to install packages from GitHub that we'll need
+# First we need to install useful packages from GitHub
 devtools::install_github(
   repo = "johnsonpc2/pcjtools",
   upgrade = "always",
@@ -24,7 +24,8 @@ devtools::install_github(
 )
 
 # And then we can actually load packages we'll use later
-pcjtools::load_packages(c("bcdstats", "data.table", "pcjtools", "psych"))
+pcjtools::load_packages(c("bcdstats", "data.table", "gtsummary",
+                          "pcjtools", "psych"))
 
 # Not strictly necessary, but I clean the workspace before I do anything
 clean_workspace(confirm = FALSE)
@@ -41,33 +42,64 @@ import_data(x = data_files$filepath) -> raw_data
 
 local({
 
-  # Filter to just the demographic trials, and keep ID, the phase, and response
-  # columns
+  # Filter to just demographic trials; keep ID, phase, and response columns
   raw_data[
     phase %like% "demographics",
     list(sona_id, phase, response)
   ] -> demo_temp
 
-  # Filter out the subjects who took the study multiple times or didn't give
-  # their age
-  demo_temp[!sona_id %in% c(78958, 79098, 78409, 79251)] -> demo_temp2
+  # Filter subjects
+  demo_temp[!sona_id %in% c(
+    78958, 79098, 78409, # multiple attempts
+    79251, # no age; multiple attempts
+    79283 # not English proficient
+    )] -> demo_temp2
 
   # Widen the responses to wide format so each subject only has one line
   widen_responses(DT = demo_temp2) -> demo_temp3
 
-  # Save a list of subjects to keep and their IDs
+  demo_temp3[, `:=`(age = as.numeric(age))] -> demo_temp3
+
+  # Save a list of subjects to keep, and their IDs
   demo_temp3[ , sona_id] -> demo_temp4
+
+  # Gender Summary Table
+  gtsummary::tbl_summary(
+    data = demo_temp3,
+    include = "gender"
+  ) -> demo_temp5
+
+  # Race Summary Table
+  gtsummary::tbl_summary(
+    data = demo_temp3,
+    include = "race"
+  ) -> demo_temp6
+
+  # Age Summary Stats
+  describe(x = demo_temp3$age, fast = TRUE) -> demo_temp7
 
   demo_data <- list(
     "demographics" = demo_temp3,
-    "subjects to keep" = demo_temp4
+    "subjects to keep" = demo_temp4,
+    "gender" = demo_temp5,
+    "race" = demo_temp6,
+    "age" = demo_temp7
   )
 
 }) -> demo_data
+
+
+# Visual Search Analysis --------------------------------------------------
 
 raw_data[
   sona_id %in% demo_data$`subjects to keep` &
     phase == "visual_search_trial",
   list(sona_id, phase, rt, response, distractor_type, block, correct,
        target_present)
-  ] -> clean_data
+  ][, rt := as.numeric(rt)] -> vs_data
+
+
+vs_data[, `:=`(prop_correct = mean(correct),
+               avg_rt = mean(rt)),
+        by = list(sona_id)] -> vs_data
+
