@@ -58,9 +58,10 @@ local({
   # Widen the responses to wide format so each subject only has one line
   widen_responses(DT = demo_temp2) -> demo_temp3
 
+  # Make age a numeric variable so we can calculate summary stats
   demo_temp3[, `:=`(age = as.numeric(age))] -> demo_temp3
 
-  # Save a list of subjects to keep, and their IDs
+  # Save the list of subjects IDs to keep
   demo_temp3[ , sona_id] -> demo_temp4
 
   # Gender Summary Table
@@ -78,6 +79,7 @@ local({
   # Age Summary Stats
   describe(x = demo_temp3$age, fast = TRUE) -> demo_temp7
 
+  # Store all the demo info in a list so its in one place
   demo_data <- list(
     "demographics" = demo_temp3,
     "subjects to keep" = demo_temp4,
@@ -114,5 +116,6 @@ local({
 
   widen_responses(DT = survey_temp, prefix = "phase") -> survey_temp2
 
-}) -> survey_data
+  recode_cols(dt = survey_temp2, cols = 2:50, class = "numeric")
 
+}) -> survey_data
