@@ -24,8 +24,8 @@ devtools::install_github(
 )
 
 # And then we can actually load packages we'll use later
-pcjtools::load_packages(c("bcdstats", "data.table", "gtsummary",
-                          "pcjtools", "psych"))
+pcjtools::load_packages(c("bcdstats", "data.table", "ggplot2",
+                          "gtsummary", "pcjtools", "psych"))
 
 # Not strictly necessary, but I clean the workspace before I do anything
 clean_workspace(confirm = FALSE)
@@ -80,7 +80,7 @@ local({
   describe(x = demo_temp3$age, fast = TRUE) -> demo_temp7
 
   # Store all the demo info in a list so its in one place
-  demo_data <- list(
+  results <- list(
     "demographics" = demo_temp3,
     "subjects to keep" = demo_temp4,
     "gender" = demo_temp5,
@@ -92,17 +92,72 @@ local({
 
 # Visual Search Analysis --------------------------------------------------
 
-raw_data[
-  sona_id %in% demo_data$`subjects to keep` &
-    phase == "visual_search_trial",
-  list(sona_id, phase, rt, response, distractor_type, block, correct,
-       target_present)
-  ][, rt := as.numeric(rt)] -> vs_data
+local({
 
+  # Make a dataset of only the Visual Search data
+  raw_data[sona_id %in% demo_data$`subjects to keep` &
+             phase == "visual_search_trial",
+           list(sona_id, phase, block, distractor_type, target_present,
+                stimuli_list, rt, response, correct)
+           ][, `:=`(rt = as.numeric(rt),
+                    block = block + 1,
+                    set_size = lengths(strsplit(gsub('\\[|\\]|"', '', stimuli_list), ",")))
+             ][, stimuli_list := NULL] -> vs_data
 
-vs_data[, `:=`(prop_correct = mean(correct),
-               avg_rt = mean(rt)),
-        by = list(sona_id)] -> vs_data
+  # Calculate the mean RT and p. correct for every condition for each subject
+  # (Here we collapse across blocks)
+  vs_data[, list(prop_correct = mean(correct),
+                 avg_rt = mean(rt)),
+          by = list(sona_id, distractor_type,
+                    target_present, set_size)
+          ] -> vs_collapsed
+
+  # Calculate each subjects' p. accuracy > .80
+  vs_collapsed[, list(total_conditions = .N,
+                    n_low_accuracy = sum(prop_correct < 0.80),
+                    prop_low_accuracy = mean(prop_correct < 0.80)),
+             by = sona_id
+             ] -> vs_accuracy
+
+  results <- list(
+    "vs_data" = vs_data,
+    "vs_collapsed" = vs_collapsed,
+    "vs_accuracy" = vs_accuracy
+  )
+
+}) -> vs_data
+
+ggplot(
+  data = vs_data$vs_collapsed,
+  mapping = aes(
+    x = distractor_type,
+    y = prop_correct,
+    color = target_present
+  )
+) +
+  stat_summary(
+    fun.data = mean_cl_boot,
+    position = position_dodge(width = 0.5)
+  ) +
+  scale_y_continuous(limits = c(0, 1)) +
+  theme_pcj()
+
+ggplot(
+  data = vs_data$vs_collapsed,
+  mapping = aes(
+    x = set_size,
+    y = avg_rt,
+    color = target_present
+  )
+) +
+  stat_summary(
+    fun.data = mean_cl_boot,
+    position = position_dodge(width = 0.6)
+    ) +
+  facet_wrap("distractor_type") +
+  scale_x_continuous(breaks = c(3, 6, 9)) +
+  scale_y_continuous(limits = c(0, 3175)) +
+  theme_pcj()
 
 # Survey Analysis ---------------------------------------------------------
 
