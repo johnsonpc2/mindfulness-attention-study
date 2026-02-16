@@ -147,7 +147,9 @@ ggplot(
   mapping = aes(
     x = set_size,
     y = avg_rt,
-    color = target_present
+    color = factor(
+      x = target_present,
+      labels = c("Absent", "Present"))
   )
 ) +
   stat_summary(
@@ -157,7 +159,16 @@ ggplot(
   facet_wrap("distractor_type") +
   scale_x_continuous(breaks = c(3, 6, 9)) +
   scale_y_continuous(limits = c(0, 3175)) +
-  theme_pcj()
+  theme_pcj(palette = "default", legend.position = c(0.95, 1.045)) +
+  labs(
+    title = "Slow Decisions when Target Absent:",
+    subtitle = "Set Size and Conjunction Effect",
+    y = "Average RT (ms)",
+    x = "Set Size"
+    ) +
+  guides(
+    color = guide_legend(title = "Target")
+  )
 
 # Survey Analysis ---------------------------------------------------------
 
