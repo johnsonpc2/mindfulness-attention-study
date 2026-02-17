@@ -27,6 +27,9 @@ devtools::install_github(
 pcjtools::load_packages(c("bcdstats", "data.table", "ggplot2",
                           "gtsummary", "pcjtools", "psych"))
 
+# Pull new data files from Pavlovia
+pavlovia_pull()
+
 # Not strictly necessary, but I clean the workspace before I do anything
 clean_workspace(confirm = FALSE)
 
@@ -236,3 +239,11 @@ local({
   recode_cols(dt = survey_temp2, cols = 2:50, class = "numeric")
 
 }) -> survey_data
+
+
+# Backup to GitHub --------------------------------------------------------
+
+git_push(
+  message = "Backup of analysis run",
+  push = TRUE
+)
