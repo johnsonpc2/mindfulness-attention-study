@@ -1,11 +1,15 @@
-# Created: 2026/02/13
-# Description: Analysis of data from the Mindfulness and Attention Study, run Spring 2026.
+
+# Script:      AnalysisScript
+# Author:      Pierce C. Johnson
+# Created:     20260213
+# Description: Analysis of data from the Mindfulness and Attention Study, run
+#   Spring 2026.
 #
-# Shortcuts
+# Shortcuts:
 #   alt + shift + k: shortcut guide
-#   alt + o: collapse all sections
+#   alt + o:         collapse all sections
 #   alt + shift + o: expand all sections
-#   ctrl + alt + t: run code section
+#   ctrl + alt + t:  run code section
 
 
 # Setup -------------------------------------------------------------------
@@ -34,6 +38,7 @@ pavlovia_pull()
 # Not strictly necessary, but I clean the workspace before I do anything
 clean_workspace(confirm = FALSE)
 
+
 # Read In Data ------------------------------------------------------------
 
 # Gather list of all data files in the "data" folder of the project directory
@@ -41,6 +46,7 @@ files_info(path = "./data", extension = ".csv") -> data_files
 
 # Import the raw data from the files
 import_data(x = data_files$filepath) -> raw_data
+
 
 # Clean Data --------------------------------------------------------------
 
@@ -93,6 +99,7 @@ local({
   )
 
 }) -> demo_data
+
 
 # Visual Search Analysis --------------------------------------------------
 
@@ -227,6 +234,7 @@ plot_saver(
   width = 15.3,
   height = 8.9
   )
+
 
 # Survey Analysis ---------------------------------------------------------
 
