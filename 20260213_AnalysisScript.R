@@ -217,12 +217,15 @@ local({
 }) -> vs_data$vs_plots
 
 
-# plot_saver(
-#   plots = vs_data$vs_plots,
-#   dir = "./plots",
-#   names = names(vs_data$vs_plots),
-#   dpi = 900
-#   )
+plot_saver(
+  plots = vs_data$vs_plots,
+  dir = "./plots",
+  names = names(vs_data$vs_plots),
+  dpi = 600,
+  preview = FALSE,
+  width = 15.3,
+  height = 8.9
+  )
 
 # Survey Analysis ---------------------------------------------------------
 
