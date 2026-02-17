@@ -27,7 +27,8 @@ devtools::install_github(
 pcjtools::load_packages(c("bcdstats", "data.table", "ggplot2",
                           "gtsummary", "pcjtools", "psych"))
 
-# Pull new data files from Pavlovia
+# Pull new data files from Pavlovia. BE CAREFUL, make sure this function pulls
+# from the correct gitlab repository
 pavlovia_pull()
 
 # Not strictly necessary, but I clean the workspace before I do anything
