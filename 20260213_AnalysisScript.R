@@ -247,7 +247,4 @@ local({
 
 # Backup to GitHub --------------------------------------------------------
 
-git_push(
-  message = paste(format(Sys.time(), "%Y%m%d %H:%M"), "Backup"),
-  push = TRUE
-)
+git_push(push = TRUE)
