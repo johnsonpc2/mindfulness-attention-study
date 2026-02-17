@@ -12,7 +12,7 @@
 #   ctrl + alt + t:  run code section
 
 
-# Setup -------------------------------------------------------------------
+# Setup -----------------------------------------------------------------------
 
 # First we need to install useful packages from GitHub
 devtools::install_github(
@@ -39,7 +39,7 @@ pavlovia_pull()
 clean_workspace(confirm = FALSE)
 
 
-# Read In Data ------------------------------------------------------------
+# Read In Data ----------------------------------------------------------------
 
 # Gather list of all data files in the "data" folder of the project directory
 files_info(path = "./data", extension = ".csv") -> data_files
@@ -48,7 +48,7 @@ files_info(path = "./data", extension = ".csv") -> data_files
 import_data(x = data_files$filepath) -> raw_data
 
 
-# Clean Data --------------------------------------------------------------
+# Clean Data ------------------------------------------------------------------
 
 local({
 
@@ -101,7 +101,7 @@ local({
 }) -> demo_data
 
 
-# Visual Search Analysis --------------------------------------------------
+# Visual Search Analysis ------------------------------------------------------
 
 local({
 
@@ -236,7 +236,7 @@ plot_saver(
   )
 
 
-# Survey Analysis ---------------------------------------------------------
+# Survey Analysis -------------------------------------------------------------
 
 local({
 
@@ -253,6 +253,6 @@ local({
 }) -> survey_data
 
 
-# Backup to GitHub --------------------------------------------------------
+# Backup to GitHub ------------------------------------------------------------
 
 git_push(push = TRUE)
