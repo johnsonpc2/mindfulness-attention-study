@@ -1,5 +1,5 @@
 # Created: 2026/02/13
-# Analysis of data from the Mindfulness and Attention Study, run Spring 2026.
+# Description: Analysis of data from the Mindfulness and Attention Study, run Spring 2026.
 #
 # Shortcuts
 #   alt + shift + k: shortcut guide
