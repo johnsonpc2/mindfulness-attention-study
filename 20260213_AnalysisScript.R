@@ -244,6 +244,6 @@ local({
 # Backup to GitHub --------------------------------------------------------
 
 git_push(
-  message = "Backup of analysis run",
+  message = paste(format(Sys.time(), "%Y%m%d %H:%M"), "Backup"),
   push = TRUE
 )
