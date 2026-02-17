@@ -127,48 +127,99 @@ local({
 
 }) -> vs_data
 
-ggplot(
-  data = vs_data$vs_collapsed,
-  mapping = aes(
-    x = distractor_type,
-    y = prop_correct,
-    color = target_present
-  )
-) +
-  stat_summary(
-    fun.data = mean_cl_boot,
-    position = position_dodge(width = 0.5)
-  ) +
-  scale_y_continuous(limits = c(0, 1)) +
-  theme_pcj()
+# Plot and save the accuracy and RT data for the visual search
+local({
 
-ggplot(
-  data = vs_data$vs_collapsed,
-  mapping = aes(
-    x = set_size,
-    y = avg_rt,
-    color = factor(
-      x = target_present,
-      labels = c("Absent", "Present"))
-  )
-) +
-  stat_summary(
-    fun.data = mean_cl_boot,
-    position = position_dodge(width = 0.6)
+  ggplot(
+    data = vs_data$vs_collapsed,
+    mapping = aes(
+      x = set_size,
+      y = prop_correct,
+      color = factor(
+        x = target_present,
+        labels = c("Absent", "Present"))
+    )
+  ) +
+    stat_summary(
+      fun.data = mean_cl_boot,
+      position = position_dodge(width = 0.5)
     ) +
-  facet_wrap("distractor_type") +
-  scale_x_continuous(breaks = c(3, 6, 9)) +
-  scale_y_continuous(limits = c(0, 3175)) +
-  theme_pcj(palette = "default", legend.position = c(0.95, 1.045)) +
-  labs(
-    title = "Slow Decisions when Target Absent:",
-    subtitle = "Set Size and Conjunction Effect",
-    y = "Average RT (ms)",
-    x = "Set Size"
+    facet_wrap(~distractor_type,
+               labeller = as_labeller(
+                 c(`blue_triangle` = "Blue Triangle",
+                   `red_blue_mix` = "Red/Blue Mix",
+                   `red_circle` = "Red Circle")
+               )) +
+    scale_x_continuous(breaks = c(3, 6, 9)) +
+    scale_y_continuous(limits = c(0, 1)) +
+    labs(
+      title = "Accuracy High Across All Conditions:",
+      subtitle = "No Set Size or Conjunction Effects",
+      y = "pCorrect",
+      x = "Set Size"
     ) +
-  guides(
-    color = guide_legend(title = "Target")
+    guides(
+      color = guide_legend(title = "Target")
+    ) +
+    theme_pcj(
+      palette = "ualbany",
+      legend.position = c(0.95, 1.1),
+      legend.key.spacing.x = unit(.5, 'in')
+    ) -> acc_plot
+
+  ggplot(
+    data = vs_data$vs_collapsed,
+    mapping = aes(
+      x = set_size,
+      y = avg_rt,
+      color = factor(
+        x = target_present,
+        labels = c("Absent", "Present"))
+    )
+  ) +
+    stat_summary(
+      fun.data = mean_cl_boot,
+      position = position_dodge(width = 0.75),
+      size = .75,
+      linewidth = .75
+    ) +
+    facet_wrap(~distractor_type,
+               labeller = as_labeller(
+                 c(`blue_triangle` = "Blue Triangle",
+                   `red_blue_mix` = "Red/Blue Mix",
+                   `red_circle` = "Red Circle")
+               )) +
+    scale_x_continuous(breaks = c(3, 6, 9)) +
+    scale_y_continuous(limits = c(0, 3175)) +
+    labs(
+      title = "Slow Decisions when Target Absent:",
+      subtitle = "Set Size and Conjunction Effects",
+      y = "Average RT (ms)",
+      x = "Set Size"
+    ) +
+    guides(
+      color = guide_legend(title = "Target")
+    ) +
+    theme_pcj(
+      palette = "ualbany",
+      legend.position = c(0.95, 1.1),
+      legend.key.spacing.x = unit(.5, 'in')
+      ) -> rt_plot
+
+  plot_results <- list(
+    "vs_accuracy" = acc_plot,
+    "vs_rt" = rt_plot
   )
+
+}) -> vs_data$vs_plots
+
+
+# plot_saver(
+#   plots = vs_data$vs_plots,
+#   dir = "./plots",
+#   names = names(vs_data$vs_plots),
+#   dpi = 900
+#   )
 
 # Survey Analysis ---------------------------------------------------------
 
