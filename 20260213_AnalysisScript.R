@@ -58,10 +58,10 @@ local({
     list(sona_id, phase, response)
   ] -> demo_temp
 
-  # Filter subjects
+  # Filter subjects (we lose 10 total data files)
   demo_temp[!sona_id %in% c(
-    78958, 79098, 78409, # multiple attempts
-    79251, # no age; multiple attempts
+    78409, 78958, 79098, # multiple attempts (2, 2, 3)
+    79251, # no age; multiple attempts (2)
     79283 # not English proficient
     )] -> demo_temp2
 
