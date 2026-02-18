@@ -173,7 +173,6 @@ local({
       color = guide_legend(title = "Target")
     ) +
     theme_pcj(
-      palette = "ualbany",
       legend.position = c(0.95, 1.1),
       legend.key.spacing.x = unit(.5, 'in')
     ) -> acc_plot
