@@ -447,7 +447,8 @@ local({
       y = satisfaction
     )
   ) +
-    geom_point()
+    geom_smooth(method = "lm", se = TRUE) +
+    geom_point() -> mind_sat
 
   ggplot(
     data = full_data,
@@ -456,13 +457,16 @@ local({
       y = conscientiousness
     )
   ) +
-    geom_point()
+    geom_smooth(method = "lm", se = TRUE) +
+    geom_point() -> mind_con
 
   # Add to your plot results list
   plot_results <- list(
     "mindfulness_rt" = mindfulness_rt_plot,
     "satisfaction_rt" = satisfaction_rt_plot,
-    "conscientiousness_rt" = conscientiousness_rt_plot
+    "conscientiousness_rt" = conscientiousness_rt_plot,
+    "mindfulness_satisfaction" = mind_sat,
+    "mindfulness_conscientiousness" = mind_con
   )
 
 }) -> plot_list
