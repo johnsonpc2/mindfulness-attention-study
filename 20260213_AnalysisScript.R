@@ -245,6 +245,7 @@ local({
   ] -> survey_temp
 
   widen_responses(DT = survey_temp, prefix = "phase") -> survey_temp2
+
   recode_cols(dt = survey_temp2, cols = 2:65, class = "numeric") -> survey_temp3
 
   melt(
@@ -321,7 +322,17 @@ local({
   ] -> conscientiousness_scores
 
   # Combine all scores
-  rbind(mindfulness_scores, satisfaction_scores, conscientiousness_scores) -> survey_scores
+  rbind(
+    mindfulness_scores,
+    satisfaction_scores,
+    conscientiousness_scores
+    ) -> survey_scores
+
+  dcast(
+    data = survey_scores,
+    formula = sona_id ~ Measure,
+    value.var = "score"
+  )
 
 }) -> survey_data
 
