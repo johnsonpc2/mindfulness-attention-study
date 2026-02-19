@@ -245,8 +245,83 @@ local({
   ] -> survey_temp
 
   widen_responses(DT = survey_temp, prefix = "phase") -> survey_temp2
+  recode_cols(dt = survey_temp2, cols = 2:65, class = "numeric") -> survey_temp3
 
-  recode_cols(dt = survey_temp2, cols = 2:50, class = "numeric")
+  melt(
+    data = survey_temp3,
+    id.vars = "sona_id",
+    variable.name = "Measure",
+    value.name = "item_score"
+  ) -> survey_temp4
+
+  # Recode from 0-4 scale to 1-5 scale
+  survey_temp4[, item_score := item_score + 1]
+
+  # Define Conscientiousness items and reverse-coded items
+  conscientiousness_items <- c(
+    "big5_survey_Thorough",
+    "big5_survey_Careless",
+    "big5_survey_Reliable",
+    "big5_survey_Disorganzied",
+    "big5_survey_Lazy",
+    "big5_survey_perservere",
+    "big5_survey_Efficient",
+    "big5_survey_plans",
+    "big5_survey_distracted"
+  )
+
+  reverse_items <- c(
+    "big5_survey_Careless",
+    "big5_survey_Disorganzied",
+    "big5_survey_Lazy",
+    "big5_survey_distracted"
+  )
+
+  # Create recoded score column
+  survey_temp4[
+    Measure %in% reverse_items,
+    item_score_recoded := 6 - item_score
+  ][
+    !(Measure %in% reverse_items),
+    item_score_recoded := item_score
+  ]
+
+  # Calculate subscale scores
+  survey_temp4[
+    Measure %like% "mindfulness",
+    score := mean(x = item_score, na.rm = TRUE),
+    by = "sona_id"
+  ][
+    Measure %like% "satisfaction",
+    score := sum(x = item_score, na.rm = TRUE),
+    by = "sona_id"
+  ][
+    Measure %in% conscientiousness_items,
+    score := mean(x = item_score_recoded, na.rm = TRUE),
+    by = "sona_id"
+  ] -> survey_temp5
+
+  # Get one row per person per subscale
+  survey_temp5[
+    Measure %like% "mindfulness",
+    .(Measure = "mindfulness", score = unique(score)),
+    by = "sona_id"
+  ] -> mindfulness_scores
+
+  survey_temp5[
+    Measure %like% "satisfaction",
+    .(Measure = "satisfaction", score = unique(score)),
+    by = "sona_id"
+  ] -> satisfaction_scores
+
+  survey_temp5[
+    Measure %in% conscientiousness_items,
+    .(Measure = "conscientiousness", score = unique(score)),
+    by = "sona_id"
+  ] -> conscientiousness_scores
+
+  # Combine all scores
+  rbind(mindfulness_scores, satisfaction_scores, conscientiousness_scores) -> survey_scores
 
 }) -> survey_data
 
