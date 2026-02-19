@@ -298,7 +298,7 @@ local({
     by = "sona_id"
   ][
     Measure %in% conscientiousness_items,
-    score := mean(x = item_score_recoded, na.rm = TRUE),
+    score := sum(x = item_score_recoded, na.rm = TRUE),
     by = "sona_id"
   ] -> survey_temp5
 
@@ -335,6 +335,137 @@ local({
   )
 
 }) -> survey_data
+
+
+# Combined Dataset --------------------------------------------------------
+
+merge(
+  x = vs_data$vs_collapsed,
+  y = survey_data,
+  by = "sona_id",
+  all.x = TRUE
+  ) -> full_data
+
+local({
+
+  # Mindfulness plot
+  ggplot(
+    data = full_data[!is.na(mindfulness)],
+    mapping = aes(
+      x = mindfulness,
+      y = avg_rt
+    )
+  ) +
+    geom_point(alpha = 0.5, size = 2) +
+    geom_smooth(method = "lm", se = TRUE) +
+    scale_y_continuous(limits = c(0, 3175)) +
+    labs(
+      title = "Response Time by Mindfulness Score",
+      subtitle = "Relationship between mindfulness and visual search RT",
+      y = "Average RT (ms)",
+      x = "Mindfulness Score"
+    ) +
+    theme_pcj(
+      legend.position = c(0.95, 1.1),
+      legend.key.spacing.x = unit(.5, 'in')
+    ) -> mindfulness_rt_plot
+
+  # Life Satisfaction plot
+  ggplot(
+    data = full_data[!is.na(satisfaction)],
+    mapping = aes(
+      x = satisfaction,
+      y = avg_rt,
+      color = factor(
+        x = target_present,
+        labels = c("Absent", "Present")
+      )
+    )
+  ) +
+    geom_point(alpha = 0.5, size = 2) +
+    geom_smooth(method = "lm", se = TRUE) +
+    facet_wrap(~distractor_type,
+               labeller = as_labeller(
+                 c(`blue_triangle` = "Blue Triangle",
+                   `red_blue_mix` = "Red/Blue Mix",
+                   `red_circle` = "Red Circle")
+               )) +
+    scale_y_continuous(limits = c(0, 3175)) +
+    labs(
+      title = "Response Time by Life Satisfaction Score",
+      subtitle = "Relationship between satisfaction and visual search RT",
+      y = "Average RT (ms)",
+      x = "Life Satisfaction Score"
+    ) +
+    guides(
+      color = guide_legend(title = "Target")
+    ) +
+    theme_pcj(
+      legend.position = c(0.95, 1.1),
+      legend.key.spacing.x = unit(.5, 'in')
+    ) -> satisfaction_rt_plot
+
+  # Conscientiousness plot
+  ggplot(
+    data = full_data[!is.na(conscientiousness)],
+    mapping = aes(
+      x = conscientiousness,
+      y = avg_rt,
+      color = factor(
+        x = target_present,
+        labels = c("Absent", "Present")
+      )
+    )
+  ) +
+    geom_point(alpha = 0.5, size = 2) +
+    geom_smooth(method = "lm", se = TRUE) +
+    facet_wrap(~distractor_type,
+               labeller = as_labeller(
+                 c(`blue_triangle` = "Blue Triangle",
+                   `red_blue_mix` = "Red/Blue Mix",
+                   `red_circle` = "Red Circle")
+               )) +
+    scale_y_continuous(limits = c(0, 3175)) +
+    labs(
+      title = "Response Time by Conscientiousness Score",
+      subtitle = "Relationship between conscientiousness and visual search RT",
+      y = "Average RT (ms)",
+      x = "Conscientiousness Score"
+    ) +
+    guides(
+      color = guide_legend(title = "Target")
+    ) +
+    theme_pcj(
+      legend.position = c(0.95, 1.1),
+      legend.key.spacing.x = unit(.5, 'in')
+    ) -> conscientiousness_rt_plot
+
+  ggplot(
+    data = full_data,
+    mapping = aes(
+      x = mindfulness,
+      y = satisfaction
+    )
+  ) +
+    geom_point()
+
+  ggplot(
+    data = full_data,
+    mapping = aes(
+      x = mindfulness,
+      y = conscientiousness
+    )
+  ) +
+    geom_point()
+
+  # Add to your plot results list
+  plot_results <- list(
+    "mindfulness_rt" = mindfulness_rt_plot,
+    "satisfaction_rt" = satisfaction_rt_plot,
+    "conscientiousness_rt" = conscientiousness_rt_plot
+  )
+
+}) -> plot_list
 
 
 # Backup to GitHub ------------------------------------------------------------
