@@ -28,8 +28,9 @@ devtools::install_github(
 )
 
 # And then we can actually load packages we'll use later
-pcjtools::load_packages(c("bcdstats", "data.table", "ggplot2",
-                          "gtsummary", "pcjtools", "psych"))
+pcjtools::load_packages(c("bcdstats", "data.table", "DFBA",
+                          "ggplot2", "gtsummary", "pcjtools",
+                          "psych"))
 
 # Pull new data files from Pavlovia. BE CAREFUL, make sure this function pulls
 # from the correct gitlab repository
@@ -137,6 +138,11 @@ local({
   )
 
 }) -> vs_data
+
+explore(
+  x = vs_data$vs_collapsed$avg_rt,
+  varname = "Avg RT"
+)
 
 # Plot and save the accuracy and RT data for the visual search
 local({
