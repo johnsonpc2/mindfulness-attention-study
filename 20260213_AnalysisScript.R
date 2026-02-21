@@ -63,7 +63,8 @@ local({
   demo_temp[!sona_id %in% c(
     78409, 78958, 79098, # multiple attempts (2, 2, 3)
     79251, # no age; multiple attempts (2)
-    79283 # not English proficient
+    79283, # not English proficient
+    78921 # > 10% of trial RTs were >2 SDs from the grand mean
     )] -> demo_temp2
 
   # Widen the responses to wide format so each subject only has one line
