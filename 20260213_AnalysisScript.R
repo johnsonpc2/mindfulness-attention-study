@@ -144,6 +144,38 @@ explore(
   varname = "Avg RT"
 )
 
+local({
+
+  # Calculate grand mean and SD of RT across all trials
+  grand_mean_rt <- mean(vs_data$vs_data$rt, na.rm = TRUE)
+  grand_sd_rt <- sd(vs_data$vs_data$rt, na.rm = TRUE)
+
+  # Calculate upper threshold (2 SDs above mean)
+  threshold_upper <- grand_mean_rt + (2 * grand_sd_rt)
+
+  # Calculate lower threshold (2 SDs below mean)
+  threshold_lower <- grand_mean_rt - (2 * grand_sd_rt)
+
+  # Flag trials that are outliers (outside 2 SDs)
+  vs_data$vs_data[,
+    is_outlier := (rt > threshold_upper) | (rt < threshold_lower)
+  ]
+
+  # Calculate proportion of outlier trials per participant
+  vs_data$vs_data[,
+    list(
+      n_trials = .N,
+      n_outliers = sum(is_outlier, na.rm = TRUE),
+      prop_outliers = mean(is_outlier, na.rm = TRUE)
+    ),
+    by = sona_id
+  ] -> outlier_summary
+
+  # Get participants with high outlier rates (e.g., > 10%)
+  outlier_summary[prop_outliers > 0.10] -> high_outlier_participants
+
+}) -> outliers
+
 # Plot and save the accuracy and RT data for the visual search
 local({
 
