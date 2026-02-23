@@ -63,8 +63,8 @@ local({
   demo_temp[!sona_id %in% c(
     78409, 78958, 79098, # multiple attempts (2, 2, 3)
     79251, # no age; multiple attempts (2)
-    79283#, # not English proficient (1)
-    #78921 # > 10% of trial RTs were >2 SDs from the grand mean (1)
+    79283, # not English proficient (1)
+    78921 # > 10% of trial RTs were >2 SDs from the grand mean (1)
     )] -> demo_temp2
 
   # Widen the responses to wide format so each subject only has one line
@@ -239,7 +239,7 @@ local({
                    `red_circle` = "Red Circle")
                )) +
     scale_x_continuous(breaks = c(3, 6, 9)) +
-    scale_y_continuous(limits = c(0, 3175)) +
+    scale_y_continuous(limits = c(0, 3500)) +
     labs(
       title = "Slow Decisions when Target Absent:",
       subtitle = "Set Size and Conjunction Effects",
@@ -397,7 +397,7 @@ local({
   ) +
     geom_point(alpha = 0.5, size = 2) +
     geom_smooth(method = "lm", se = TRUE) +
-    scale_y_continuous(limits = c(0, 3175)) +
+    scale_y_continuous(limits = c(0, 3500)) +
     labs(
       title = "Response Time by Mindfulness Score",
       subtitle = "Relationship between mindfulness and visual search RT",
@@ -429,7 +429,7 @@ local({
                    `red_blue_mix` = "Red/Blue Mix",
                    `red_circle` = "Red Circle")
                )) +
-    scale_y_continuous(limits = c(0, 3175)) +
+    scale_y_continuous(limits = c(0, 3500)) +
     labs(
       title = "Response Time by Life Satisfaction Score",
       subtitle = "Relationship between satisfaction and visual search RT",
@@ -464,7 +464,7 @@ local({
                    `red_blue_mix` = "Red/Blue Mix",
                    `red_circle` = "Red Circle")
                )) +
-    scale_y_continuous(limits = c(0, 3175)) +
+    scale_y_continuous(limits = c(0, 3500)) +
     labs(
       title = "Response Time by Conscientiousness Score",
       subtitle = "Relationship between conscientiousness and visual search RT",
