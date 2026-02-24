@@ -139,33 +139,33 @@ local({
 
 }) -> vs_data
 
-glmer(
-  rt ~ distractor_type * target_present * set_size +
-    (1 | sona_id),
-  data = vs_data$vs_data[correct == TRUE],
-  family = Gamma(link = "log")
-) -> fit
-
-summary(fit)
-
-Anova(fit, type = 3)
-
-# Main effect of set_size
-emmeans(fit, pairwise ~ set_size, adjust = "bonferroni", type = "response")
-
-# Interaction: set_size within each level of target_present
-emmeans(fit, pairwise ~ set_size | target_present, adjust = "bonferroni", type = "response")
-
-glmer(
-  rt ~ distractor_type * target_present * set_size +
-    (distractor_type + target_present + set_size | sona_id),
-  data = vs_data$vs_data[correct == TRUE],
-  family = Gamma(link = "log")
-) -> mid_fit
-
-summary(mid_fit)
-
-tbl_regression(mid_fit, exponentiate = TRUE)
+# glmer(
+#   rt ~ distractor_type * target_present * set_size +
+#     (1 | sona_id),
+#   data = vs_data$vs_data[correct == TRUE],
+#   family = Gamma(link = "log")
+# ) -> fit
+#
+# summary(fit)
+#
+# Anova(fit, type = 3)
+#
+# # Main effect of set_size
+# emmeans(fit, pairwise ~ set_size, adjust = "bonferroni", type = "response")
+#
+# # Interaction: set_size within each level of target_present
+# emmeans(fit, pairwise ~ set_size | target_present, adjust = "bonferroni", type = "response")
+#
+# glmer(
+#   rt ~ distractor_type * target_present * set_size +
+#     (distractor_type + target_present + set_size | sona_id),
+#   data = vs_data$vs_data[correct == TRUE],
+#   family = Gamma(link = "log")
+# ) -> mid_fit
+#
+# summary(mid_fit)
+#
+# tbl_regression(mid_fit, exponentiate = TRUE)
 
 explore(
   x = vs_data$vs_collapsed$avg_rt,
