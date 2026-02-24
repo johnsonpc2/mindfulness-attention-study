@@ -240,7 +240,7 @@ local({
       color = guide_legend(title = "Target")
     ) +
     theme_pcj(
-      legend.position = c(0.95, 1.1),
+      legend.position = c(0.98, 1.1),
       legend.key.spacing.x = unit(.5, 'in')
     ) -> acc_plot
 
@@ -278,7 +278,7 @@ local({
       color = guide_legend(title = "Target")
     ) +
     theme_pcj(
-      legend.position = c(0.95, 1.1),
+      legend.position = c(0.98, 1.1),
       legend.key.spacing.x = unit(.5, 'in')
       ) -> rt_plot
 
@@ -433,7 +433,7 @@ local({
       x = "Mindfulness Score"
     ) +
     theme_pcj(
-      legend.position = c(0.95, 1.1),
+      legend.position = c(0.98, 1.1),
       legend.key.spacing.x = unit(.5, 'in')
     ) -> mindfulness_rt_plot
 
@@ -468,7 +468,7 @@ local({
       color = guide_legend(title = "Target")
     ) +
     theme_pcj(
-      legend.position = c(0.95, 1.1),
+      legend.position = c(0.98, 1.1),
       legend.key.spacing.x = unit(.5, 'in')
     ) -> satisfaction_rt_plot
 
@@ -503,7 +503,7 @@ local({
       color = guide_legend(title = "Target")
     ) +
     theme_pcj(
-      legend.position = c(0.95, 1.1),
+      legend.position = c(0.98, 1.1),
       legend.key.spacing.x = unit(.5, 'in')
     ) -> conscientiousness_rt_plot
 
