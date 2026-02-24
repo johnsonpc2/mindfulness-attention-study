@@ -28,9 +28,8 @@ devtools::install_github(
 )
 
 # And then we can actually load packages we'll use later
-pcjtools::load_packages(c("bcdstats", "data.table", "DFBA",
-                          "ggplot2", "gtsummary", "pcjtools",
-                          "psych"))
+pcjtools::load_packages(c("bcdstats", "car", "data.table", "emmeans",
+                          "ggplot2", "gtsummary", "lme4", "pcjtools","psych"))
 
 # Pull new data files from Pavlovia. BE CAREFUL, make sure this function pulls
 # from the correct gitlab repository
@@ -122,7 +121,7 @@ local({
   vs_data[, list(prop_correct = mean(correct),
                  avg_rt = mean(rt)),
           by = list(sona_id, distractor_type,
-                    target_present, set_size)
+                    target_present, set_size, correct)
           ] -> vs_collapsed
 
   # Calculate each subjects' p. accuracy > .80
@@ -139,6 +138,34 @@ local({
   )
 
 }) -> vs_data
+
+glmer(
+  rt ~ distractor_type * target_present * set_size +
+    (1 | sona_id),
+  data = vs_data$vs_data[correct == TRUE],
+  family = Gamma(link = "log")
+) -> fit
+
+summary(fit)
+
+Anova(fit, type = 3)
+
+# Main effect of set_size
+emmeans(fit, pairwise ~ set_size, adjust = "bonferroni", type = "response")
+
+# Interaction: set_size within each level of target_present
+emmeans(fit, pairwise ~ set_size | target_present, adjust = "bonferroni", type = "response")
+
+glmer(
+  rt ~ distractor_type * target_present * set_size +
+    (distractor_type + target_present + set_size | sona_id),
+  data = vs_data$vs_data[correct == TRUE],
+  family = Gamma(link = "log")
+) -> mid_fit
+
+summary(mid_fit)
+
+tbl_regression(mid_fit, exponentiate = TRUE)
 
 explore(
   x = vs_data$vs_collapsed$avg_rt,
@@ -187,7 +214,8 @@ local({
       y = prop_correct,
       color = factor(
         x = target_present,
-        labels = c("Absent", "Present"))
+        labels = c("Absent", "Present")),
+      shape = correct
     )
   ) +
     stat_summary(
@@ -217,7 +245,7 @@ local({
     ) -> acc_plot
 
   ggplot(
-    data = vs_data$vs_collapsed,
+    data = vs_data$vs_collapsed[correct == TRUE],
     mapping = aes(
       x = set_size,
       y = avg_rt,
@@ -241,7 +269,7 @@ local({
     scale_x_continuous(breaks = c(3, 6, 9)) +
     scale_y_continuous(limits = c(0, 3500)) +
     labs(
-      title = "Slow Decisions when Target Absent:",
+      title = "Slow Correct Decisions when Target Absent:",
       subtitle = "Set Size and Conjunction Effects",
       y = "Average RT (ms)",
       x = "Set Size"
