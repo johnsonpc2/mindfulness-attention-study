@@ -214,8 +214,7 @@ local({
       y = prop_correct,
       color = factor(
         x = target_present,
-        labels = c("Absent", "Present")),
-      shape = correct
+        labels = c("Absent", "Present"))
     )
   ) +
     stat_summary(
