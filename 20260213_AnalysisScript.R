@@ -60,7 +60,7 @@ local({
 
   # Filter subjects (we lose 10 total data files)
   demo_temp[!sona_id %in% c(
-    78409, 78593, 78958, 79098, # multiple attempts (2, 2, 3)
+    78409, 78593, 78958, 79098, # multiple attempts (2, 2, 2, 3)
     79251, # no age; multiple attempts (2)
     79283#, # not English proficient (1)
     # 78921, 78371, 79106, 78360 # prop of outlier RT trials > 2 SDs from grand mean (4)
