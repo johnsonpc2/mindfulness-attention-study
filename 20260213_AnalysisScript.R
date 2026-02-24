@@ -296,8 +296,8 @@ plot_saver(
   names = names(vs_data$vs_plots),
   dpi = 600,
   preview = FALSE,
-  width = 15.3,
-  height = 8.9
+  width = 15.5,
+  height = 9
   )
 
 
