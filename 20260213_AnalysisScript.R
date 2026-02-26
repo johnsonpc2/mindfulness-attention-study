@@ -33,7 +33,7 @@ pcjtools::load_packages(c("bcdstats", "car", "data.table", "emmeans",
 
 # Pull new data files from Pavlovia. BE CAREFUL, make sure this function pulls
 # from the correct gitlab repository
-pavlovia_pull()
+git_pull()
 
 # Not strictly necessary, but I clean the workspace before I do anything
 clean_workspace(confirm = FALSE)
