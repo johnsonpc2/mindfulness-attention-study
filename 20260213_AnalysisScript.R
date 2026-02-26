@@ -436,6 +436,35 @@ local({
       legend.key.spacing.x = unit(.5, 'in')
     ) -> mindfulness_rt_plot
 
+  ggplot(
+    data = full_data[!is.na(satisfaction)],
+    mapping = aes(
+      x = mindfulness,
+      y = avg_rt,
+      color = factor(
+        x = set_size,
+        labels = c("3", "6", "9")
+      )
+    )
+  ) +
+    geom_point(alpha = 0.5, size = 2) +
+    geom_smooth(method = "lm", se = TRUE) +
+    facet_grid(target_present ~ distractor_type) +
+    scale_y_continuous(limits = c(0, 3500)) +
+    labs(
+      title = "Response Time by Life Satisfaction Score",
+      subtitle = "Relationship between satisfaction and visual search RT",
+      y = "Average RT (ms)",
+      x = "Life Satisfaction Score"
+    ) +
+    guides(
+      color = guide_legend(title = "Target")
+    ) +
+    theme_pcj(
+      legend.position = c(0.98, 1.1),
+      legend.key.spacing.x = unit(.5, 'in')
+    ) -> mindfulness2_rt_plot
+
   # Life Satisfaction plot
   ggplot(
     data = full_data[!is.na(satisfaction)],
