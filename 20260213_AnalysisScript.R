@@ -385,7 +385,7 @@ merge(
   y     = survey_data,
   by    = "sona_id",
   all.x = TRUE
-) -> full_data
+) -> vs_data$full_data
 
 # Survey × RT Plots -----------------------------------------------------------
 
@@ -428,7 +428,7 @@ local({
 
   # Simple mindfulness ~ RT scatterplot (no faceting)
   ggplot(
-    data    = full_data[!is.na(mindfulness)],
+    data    = vs_data$full_data[!is.na(mindfulness)],
     mapping = aes(x = mindfulness, y = avg_rt)
   ) +
     geom_point(alpha = 0.5, size = 2) +
@@ -447,7 +447,7 @@ local({
 
   # Mindfulness ~ RT broken out by set size, target presence, and distractor type
   ggplot(
-    data    = full_data[!is.na(mindfulness)],
+    data    = vs_data$full_data[!is.na(mindfulness)],
     mapping = aes(
       x     = mindfulness,
       y     = avg_rt,
@@ -471,15 +471,15 @@ local({
     ) -> mindfulness_rt_by_condition_plot
 
   # Survey score ~ RT plots (faceted, using shared helper)
-  satisfaction_rt_plot      <- make_survey_rt_plot(full_data, "satisfaction",      "Life Satisfaction Score")
-  conscientiousness_rt_plot <- make_survey_rt_plot(full_data, "conscientiousness", "Conscientiousness Score")
+  satisfaction_rt_plot      <- make_survey_rt_plot(vs_data$full_data, "satisfaction",      "Life Satisfaction Score")
+  conscientiousness_rt_plot <- make_survey_rt_plot(vs_data$full_data, "conscientiousness", "Conscientiousness Score")
 
   # Relationships between survey subscales
-  ggplot(full_data, aes(x = mindfulness, y = satisfaction)) +
+  ggplot(vs_data$full_data, aes(x = mindfulness, y = satisfaction)) +
     geom_point() +
     geom_smooth(method = "lm", se = TRUE) -> mind_sat_plot
 
-  ggplot(full_data, aes(x = mindfulness, y = conscientiousness)) +
+  ggplot(vs_data$full_data, aes(x = mindfulness, y = conscientiousness)) +
     geom_point() +
     geom_smooth(method = "lm", se = TRUE) -> mind_con_plot
 
