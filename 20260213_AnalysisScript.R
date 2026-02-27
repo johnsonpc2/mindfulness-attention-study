@@ -62,7 +62,7 @@ local({
     list(sona_id, phase, response)
   ] -> demo_temp
 
-  # Exclude subjects for the following reasons (11 total excluded; 17 files):
+  # Exclude subjects for the following reasons (11 subjects; 17 files):
   demo_temp[!sona_id %in% c(
     78409, 78593, 78958, 79098, # multiple attempts (2, 2, 2, 3)
     79251,                      # no age; multiple attempts (2)
@@ -130,7 +130,7 @@ local({
           by = list(sona_id, distractor_type, target_present, set_size, correct)
   ] -> vs_collapsed
 
-  # Summarize outlier rate per participant; flag anyone exceeding 10%
+  # Summarize outlier rate per participant; flag anyone exceeding 5%
   vs_data[,
           list(
             n_trials      = .N,
@@ -155,7 +155,9 @@ local({
     "vs_collapsed"    = vs_collapsed,
     "vs_accuracy"     = vs_accuracy,
     "outlier_summary" = outlier_summary,
-    "outlier_subjects"    = outlier_summary[prop_outliers > 0.05]
+    "outlier_subjects"    = outlier_summary[prop_outliers > 0.05],
+    "gMean" = grand_mean_rt,
+    "gMeanSD" = grand_sd_rt
   )
 
 }) -> vs_data
@@ -224,7 +226,7 @@ local({
     ) +
     facet_wrap(~distractor_type, labeller = distractor_labels) +
     scale_x_continuous(breaks = c(3, 6, 9)) +
-    scale_y_continuous(limits = c(0, 3500)) +
+    scale_y_continuous(limits = c(0, vs_data$gMean + vs_data$gMeanSD * 2)) +
     labs(
       title    = "Slow Correct Decisions when Target Absent:",
       subtitle = "Set Size and Conjunction Effects",
@@ -412,7 +414,7 @@ local({
           `red_circle`    = "Red Circle"
         ))
       ) +
-      scale_y_continuous(limits = c(0, 3500)) +
+      scale_y_continuous(limits = c(0, vs_data$gMean + vs_data$gMeanSD * 2)) +
       labs(
         title    = paste("Response Time by", x_label),
         subtitle = paste("Relationship between", x_label, "and visual search RT"),
@@ -457,7 +459,7 @@ local({
     geom_point(alpha = 0.5, size = 2) +
     geom_smooth(method = "lm", se = TRUE) +
     facet_grid(target_present ~ distractor_type) +
-    scale_y_continuous(limits = c(0, 3500)) +
+    scale_y_continuous(limits = c(0, vs_data$gMean + vs_data$gMeanSD * 2)) +
     labs(
       title    = "Response Time by Mindfulness Score",
       subtitle = "Broken out by set size, target presence, and distractor type",
@@ -483,16 +485,31 @@ local({
     geom_point() +
     geom_smooth(method = "lm", se = TRUE) -> mind_con_plot
 
+  ggplot(vs_data$full_data, aes(x = satisfaction, y = conscientiousness)) +
+    geom_point() +
+    geom_smooth(method = "lm", se = TRUE) -> sat_con_plot
+
   plot_results <- list(
     "mindfulness_rt"                = mindfulness_rt_plot,
     "mindfulness_rt_by_condition"   = mindfulness_rt_by_condition_plot,
     "satisfaction_rt"               = satisfaction_rt_plot,
     "conscientiousness_rt"          = conscientiousness_rt_plot,
     "mindfulness_satisfaction"      = mind_sat_plot,
-    "mindfulness_conscientiousness" = mind_con_plot
+    "mindfulness_conscientiousness" = mind_con_plot,
+    "conscientiousness_satisfaction" = sat_con_plot
   )
 
 }) -> vs_data$survey_rt_plots
+
+plot_saver(
+  plots   = vs_data$survey_rt_plots,
+  dir     = "./plots",
+  names   = names(vs_data$survey_rt_plots),
+  dpi     = 600,
+  preview = FALSE,
+  width   = 15.5,
+  height  = 9
+)
 
 
 # Backup to GitHub ------------------------------------------------------------
