@@ -492,7 +492,7 @@ local({
     "mindfulness_conscientiousness" = mind_con_plot
   )
 
-}) -> survey_rt_plots
+}) -> vs_data$survey_rt_plots
 
 
 # Backup to GitHub ------------------------------------------------------------
