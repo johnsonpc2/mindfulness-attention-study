@@ -343,8 +343,8 @@ survey_temp4[
 ]
 
 # Compute subscale scores:
-#   Mindfulness:        mean of items
-#   Life Satisfaction:  sum of items
+#   Mindfulness:        mean of items; higher scores, should mean lower reported negative emotional states; address when we write up!
+#   Life Satisfaction:  sum of items; 5-35; average 20-24 (neutral)
 #   Conscientiousness:  sum of all items, with negatively-worded items
 #                       reverse-scored prior to summing
 survey_temp4[
@@ -357,7 +357,7 @@ survey_temp4[
   by = "sona_id"
 ][
   Measure %in% conscientiousness_items,
-  score := sum(item_score_recoded, na.rm = TRUE),
+  score := mean(item_score_recoded, na.rm = TRUE),
   by = "sona_id"
 ] -> survey_temp5
 
