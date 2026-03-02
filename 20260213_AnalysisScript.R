@@ -119,15 +119,17 @@ local({
             rt < grand_mean_rt - (2 * grand_sd_rt)
   ]
 
+  # Remove outlier trials before collapsing so avg_rt reflects clean trials only
+  vs_data[is_outlier == FALSE] -> vs_data_clean
+
   # Collapse across blocks: compute mean RT, proportion correct, and outlier
   # flag per condition. A condition is flagged if any of its trials was an outlier.
-  vs_data[,
-          list(
-            prop_correct = mean(correct),
-            avg_rt       = mean(rt),
-            is_outlier   = any(is_outlier, na.rm = TRUE)
-          ),
-          by = list(sona_id, distractor_type, target_present, set_size, correct)
+  vs_data_clean[,
+                list(
+                  prop_correct = mean(correct),
+                  avg_rt       = mean(rt)
+                ),
+                by = list(sona_id, distractor_type, target_present, set_size, correct)
   ] -> vs_collapsed
 
   # Summarize outlier rate per participant; flag anyone exceeding 5%
