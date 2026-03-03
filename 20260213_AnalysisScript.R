@@ -67,7 +67,7 @@ local({
     78409, 78593, 78958, 79098, # multiple attempts (2, 2, 2, 3)
     79251,                      # no age; multiple attempts (2)
     79283,                      # not English proficient
-    78360, 78371, 78393, 78921, 79106  # outlier RT proportion > 2 SDs
+    78360, 78371, 78393, 78573, 78921, 79106  # outlier RT trials > 5%
   )] -> demo_temp2
 
   # Reshape to wide format (one row per subject) and coerce age to numeric
@@ -115,7 +115,7 @@ local({
   grand_sd_rt   <- sd(vs_data$rt,   na.rm = TRUE)
 
   vs_data[,
-          is_outlier := rt > grand_mean_rt + (2 * grand_sd_rt) |
+          is_outlier := rt > 5000 |
             rt < grand_mean_rt - (2 * grand_sd_rt)
   ]
 
@@ -129,7 +129,8 @@ local({
                   prop_correct = mean(correct),
                   avg_rt       = mean(rt)
                 ),
-                by = list(sona_id, distractor_type, target_present, set_size, correct)
+                by = list(sona_id, distractor_type, target_present,
+                          set_size, correct)
   ] -> vs_collapsed
 
   # Summarize outlier rate per participant; flag anyone exceeding 5%
