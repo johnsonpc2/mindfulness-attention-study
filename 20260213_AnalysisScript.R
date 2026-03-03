@@ -232,7 +232,7 @@ local({
     ) +
     facet_wrap(~distractor_type, labeller = distractor_labels) +
     scale_x_continuous(breaks = c(3, 6, 9)) +
-    scale_y_continuous(limits = c(0, 5000)) +
+    scale_y_continuous(limits = c(0, 2000)) +
     labs(
       title    = "Slow Correct Decisions when Target Absent:",
       subtitle = "Set Size and Conjunction Effects",
@@ -441,7 +441,7 @@ local({
   ) +
     geom_point(alpha = 0.5, size = 2) +
     geom_smooth(method = "lm", se = TRUE) +
-    scale_y_continuous(limits = c(0, 5000)) +
+    scale_y_continuous(limits = c(0, 2000)) +
     labs(
       title    = "Response Time by Mindfulness Score",
       subtitle = "Relationship between mindfulness and visual search RT",
@@ -465,7 +465,7 @@ local({
     geom_point(alpha = 0.5, size = 2) +
     geom_smooth(method = "lm", se = TRUE) +
     facet_grid(target_present ~ distractor_type) +
-    scale_y_continuous(limits = c(0, 5000)) +
+    scale_y_continuous(limits = c(0, 2000)) +
     labs(
       title    = "Response Time by Mindfulness Score",
       subtitle = "Broken out by set size, target presence, and distractor type",
