@@ -269,7 +269,7 @@ const consent = {
       <p style="margin-bottom: 10px;"><strong>Study Title:</strong> The Effects of Mindfulness and Attention on Life Satisfaction and Memory</p>
       <p style="margin-bottom: 10px;"><strong>Principal Investigator:</strong> Ella Bremmer</p>
       <p style="margin-bottom: 10px;"><strong>Co-Principal Investigator:</strong> Dr. Gregory Cox</p>
-      <p style="margin-bottom: 20px;"><strong>IRB Study Number:</strong></p>
+      <p style="margin-bottom: 20px;"><strong>IRB Study Number:</strong> STUDY00006288</p>
 
       <p style="margin-bottom: 15px;">I am a student at the University at Albany, in the Department of Psychology. I am planning to conduct a research study, which I invite you to take part in.</p>
       
