@@ -67,7 +67,7 @@ local({
     78409, 78593, 78958, 79098, # multiple attempts (2, 2, 2, 3)
     79251,                      # no age; multiple attempts (2)
     79283,                      # not English proficient
-    78360, 78371, 78393, 78573, 78921, 79106  # outlier RT proportion > 2 SDs
+    78360, 78371, 78393, 78921, 79106  # outlier RT proportion > 2 SDs
   )] -> demo_temp2
 
   # Reshape to wide format (one row per subject) and coerce age to numeric
