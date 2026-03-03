@@ -26,11 +26,11 @@ devtools::install_github(
   force = FALSE
 )
 
-devtools::install_github(
-  repo = "bcdudek/bcdstats",
-  upgrade = "never",
-  force = FALSE
-)
+# devtools::install_github(
+#   repo = "bcdudek/bcdstats",
+#   upgrade = "never",
+#   force = FALSE
+# )
 
 # Load all packages used in this script
 pcjtools::load_packages(c(
@@ -164,10 +164,10 @@ local({
 
 }) -> vs_data
 
-explore(
-  x = vs_data$vs_collapsed$avg_rt,
-  varname = "Avg RT"
-)
+# explore(
+#   x = vs_data$vs_collapsed$avg_rt,
+#   varname = "Avg RT"
+# )
 
 
 # Visual Search Plots -----------------------------------------------------
