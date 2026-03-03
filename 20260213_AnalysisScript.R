@@ -62,13 +62,16 @@ local({
     list(sona_id, phase, response)
   ] -> demo_temp
 
-  # Exclude subjects for the following reasons (11 subjects; 17 files):
+  # Exclude subjects for the following reasons (13 subjects; 20 files):
   demo_temp[!sona_id %in% c(
-    78409, 78593, 78958, 79098, # multiple attempts (2, 2, 2, 3)
+    75815, 78409, 78593, 78958, 79098, # multiple attempts (2, 2, 2, 2, 3)
     79251,                      # no age; multiple attempts (2)
-    79283,                      # not English proficient
-    78360, 78371, 78393, 78573, 78921, 79106  # outlier RT trials > 5%
+    79283,                      # not English proficient (1)
+    78360, 78371, 78393, 78573, 78921, 79106  # outlier RT trials > 5% (6)
   )] -> demo_temp2
+
+  # Check for duplicates
+  # table(table(vs_data$vs_data$sona_id) == 270)
 
   # Reshape to wide format (one row per subject) and coerce age to numeric
   widen_responses(DT = demo_temp2) -> demo_temp3
