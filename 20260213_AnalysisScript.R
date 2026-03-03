@@ -136,6 +136,9 @@ local({
                           set_size, correct)
   ] -> vs_collapsed
 
+  collapsed_Gmean <- mean(vs_collapsed$avg_rt)
+  collapsed_Gsd <- sd(vs_collapsed$avg_rt)
+
   # Summarize outlier rate per participant; flag anyone exceeding 5%
   vs_data[,
           list(
@@ -162,8 +165,15 @@ local({
     "vs_accuracy"     = vs_accuracy,
     "outlier_summary" = outlier_summary,
     "outlier_subjects"    = outlier_summary[prop_outliers > 0.05],
-    "gMean" = grand_mean_rt,
-    "gMeanSD" = grand_sd_rt
+    "grand_stats" = list(
+      "gMean" = grand_mean_rt,
+      "gSD" = grand_sd_rt
+    ),
+    "collapsed_stats" = list(
+      "gMean" = collapsed_Gmean,
+      "gSD" = collapsed_Gsd
+    )
+
   )
 
 }) -> vs_data
@@ -232,7 +242,8 @@ local({
     ) +
     facet_wrap(~distractor_type, labeller = distractor_labels) +
     scale_x_continuous(breaks = c(3, 6, 9)) +
-    scale_y_continuous(limits = c(0, 2000)) +
+    scale_y_continuous(limits = c(0, vs_data$collapsed_stats$gMean +
+                                    2 * vs_data$collapsed_stats$gSD)) +
     labs(
       title    = "Slow Correct Decisions when Target Absent:",
       subtitle = "Set Size and Conjunction Effects",
@@ -420,7 +431,8 @@ local({
           `red_circle`    = "Red Circle"
         ))
       ) +
-      scale_y_continuous(limits = c(0, 5000)) +
+      scale_y_continuous(limits = c(0, vs_data$collapsed_stats$gMean +
+                                      2 * vs_data$collapsed_stats$gSD)) +
       labs(
         title    = paste("Response Time by", x_label),
         subtitle = paste("Relationship between", x_label, "and visual search RT"),
@@ -441,7 +453,8 @@ local({
   ) +
     geom_point(alpha = 0.5, size = 2) +
     geom_smooth(method = "lm", se = TRUE) +
-    scale_y_continuous(limits = c(0, 2000)) +
+    scale_y_continuous(limits = c(0, vs_data$collapsed_stats$gMean +
+                                    2 * vs_data$collapsed_stats$gSD)) +
     labs(
       title    = "Response Time by Mindfulness Score",
       subtitle = "Relationship between mindfulness and visual search RT",
@@ -465,7 +478,8 @@ local({
     geom_point(alpha = 0.5, size = 2) +
     geom_smooth(method = "lm", se = TRUE) +
     facet_grid(target_present ~ distractor_type) +
-    scale_y_continuous(limits = c(0, 2000)) +
+    scale_y_continuous(limits = c(0, vs_data$collapsed_stats$gMean +
+                                    2 * vs_data$collapsed_stats$gSD)) +
     labs(
       title    = "Response Time by Mindfulness Score",
       subtitle = "Broken out by set size, target presence, and distractor type",
