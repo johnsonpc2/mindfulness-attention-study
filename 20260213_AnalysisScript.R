@@ -183,6 +183,11 @@ local({
 #   varname = "Avg RT"
 # )
 
+# fwrite(
+#   x = vs_data$,
+#   file = "./FullData.csv",
+#   row.names = FALSE
+# )
 
 # Visual Search Plots -----------------------------------------------------
 
