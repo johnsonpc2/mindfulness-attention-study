@@ -27,15 +27,7 @@
 
 # First we need to install useful packages from GitHub
 devtools::install_github(
-  repo = "johnsonpc2/pcjtools",
-  upgrade = "always",
-  force = FALSE
-)
-
-devtools::install_github(
-  repo = "bcdudek/bcdstats",
-  upgrade = "never",
-  force = FALSE
+  repo = c("johnsonpc2/pcjtools", "bcdudek/bcdstats")
 )
 
 # Load all packages used in this script
