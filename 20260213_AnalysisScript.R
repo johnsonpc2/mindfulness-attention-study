@@ -17,6 +17,12 @@
 #   ctrl + alt + t:  run code section
 
 
+# NOTES -------------------------------------------------------------------
+
+#   1. Add layer of points to the accuracy plot so you can see the distribution
+#     of the data
+
+
 # Setup -----------------------------------------------------------------------
 
 # First we need to install useful packages from GitHub
@@ -26,11 +32,11 @@ devtools::install_github(
   force = FALSE
 )
 
-# devtools::install_github(
-#   repo = "bcdudek/bcdstats",
-#   upgrade = "never",
-#   force = FALSE
-# )
+devtools::install_github(
+  repo = "bcdudek/bcdstats",
+  upgrade = "never",
+  force = FALSE
+)
 
 # Load all packages used in this script
 pcjtools::load_packages(c(
@@ -39,7 +45,7 @@ pcjtools::load_packages(c(
 ))
 
 # Pull latest data files from the Pavlovia GitLab repository
-git_pull()
+git_pull(sleep = 5)
 
 # Clear workspace before analysis
 clean_workspace(confirm = FALSE)
@@ -183,11 +189,6 @@ local({
 #   varname = "Avg RT"
 # )
 
-# fwrite(
-#   x = vs_data$,
-#   file = "./FullData.csv",
-#   row.names = FALSE
-# )
 
 # Visual Search Plots -----------------------------------------------------
 
@@ -436,8 +437,8 @@ local({
           `red_circle`    = "Red Circle"
         ))
       ) +
-      scale_y_continuous(limits = c(0, vs_data$collapsed_stats$gMean +
-                                      2 * vs_data$collapsed_stats$gSD)) +
+      scale_y_continuous(limits = c(0, mean(vs_data$full_data$avg_rt) +
+                                      2 * sd(vs_data$full_data$avg_rt))) +
       labs(
         title    = paste("Response Time by", x_label),
         subtitle = paste("Relationship between", x_label, "and visual search RT"),
@@ -458,8 +459,8 @@ local({
   ) +
     geom_point(alpha = 0.5, size = 2) +
     geom_smooth(method = "lm", se = TRUE) +
-    scale_y_continuous(limits = c(0, vs_data$collapsed_stats$gMean +
-                                    2 * vs_data$collapsed_stats$gSD)) +
+    scale_y_continuous(limits = c(0, mean(vs_data$full_data$avg_rt) +
+                                    2 * sd(vs_data$full_data$avg_rt))) +
     labs(
       title    = "Response Time by Mindfulness Score",
       subtitle = "Relationship between mindfulness and visual search RT",
@@ -483,8 +484,8 @@ local({
     geom_point(alpha = 0.5, size = 2) +
     geom_smooth(method = "lm", se = TRUE) +
     facet_grid(target_present ~ distractor_type) +
-    scale_y_continuous(limits = c(0, vs_data$collapsed_stats$gMean +
-                                    2 * vs_data$collapsed_stats$gSD)) +
+    scale_y_continuous(limits = c(0, mean(vs_data$full_data$avg_rt) +
+                                    2 * sd(vs_data$full_data$avg_rt))) +
     labs(
       title    = "Response Time by Mindfulness Score",
       subtitle = "Broken out by set size, target presence, and distractor type",
