@@ -641,36 +641,39 @@ local({
     geom_point() +
     geom_smooth(method = "lm", se = TRUE) +
     labs(
-      title    = rel("Relationship Between Mindfulness and Life Satisfaction"),
+      title    = "Relationship Between Mindfulness and Life Satisfaction",
       subtitle = format_cor_subtitle(ct_mind_sat),
       x        = "Mindfulness Score",
       y        = "Life Satisfaction Score"
     ) +
-    theme_pcj(default_caption = FALSE) +
+    theme_pcj(default_caption = FALSE,
+              plot.title = ggplot2::element_text(size = ggplot2::rel(1.8))) +
     theme(plot.subtitle = ggtext::element_markdown()) -> mind_sat_plot
 
   ggplot(vs_data$subj_scores, aes(x = mindfulness, y = conscientiousness)) +
     geom_point() +
     geom_smooth(method = "lm", se = TRUE) +
     labs(
-      title    = rel("Relationship Between Mindfulness and Conscientiousness"),
+      title    = "Relationship Between Mindfulness and Conscientiousness",
       subtitle = format_cor_subtitle(ct_mind_con),
       x        = "Mindfulness Score",
       y        = "Conscientiousness Score"
     ) +
-    theme_pcj(default_caption = FALSE) +
+    theme_pcj(default_caption = FALSE,
+              plot.title = ggplot2::element_text(size = ggplot2::rel(1.8))) +
     theme(plot.subtitle = ggtext::element_markdown()) -> mind_con_plot
 
   ggplot(vs_data$subj_scores, aes(x = satisfaction, y = conscientiousness)) +
     geom_point() +
     geom_smooth(method = "lm", se = TRUE) +
     labs(
-      title    = rel("Relationship Between Life Satisfaction and Conscientiousness"),
+      title    = "Relationship Between Life Satisfaction and Conscientiousness",
       subtitle = format_cor_subtitle(ct_sat_con),
       x        = "Life Satisfaction Score",
       y        = "Conscientiousness Score"
     ) +
-    theme_pcj(default_caption = FALSE) +
+    theme_pcj(default_caption = FALSE,
+              plot.title = ggplot2::element_text(size = ggplot2::rel(1.8))) +
     theme(plot.subtitle = ggtext::element_markdown()) -> sat_con_plot
 
   plot_results <- list(
