@@ -432,11 +432,11 @@ merge(
   all.x = TRUE
 ) -> vs_data$full_data
 
-# Collapse to one row per subject per distractor_type x target_present
-# condition for use in survey correlation plots, so each subject
-# contributes equally regardless of how many set size rows they have
+# Collapse to one row per subject per distractor_type x target_present.
+# Filter to correct trials only (matching rt_model_data) before averaging,
+# then average over set sizes so each subject contributes one RT per condition.
 vs_data$full_data[
-  ,
+  correct == TRUE,
   .(
     avg_rt            = mean(avg_rt,            na.rm = TRUE),
     mindfulness       = mean(mindfulness,       na.rm = TRUE),
