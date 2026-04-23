@@ -641,7 +641,7 @@ local({
     geom_point() +
     geom_smooth(method = "lm", se = TRUE) +
     labs(
-      title    = "Higher Mindfulness Associated with Lower Life Satisfaction",
+      title    = "Relationship Between Mindfulness and Life Satisfaction",
       subtitle = format_cor_subtitle(ct_mind_sat),
       x        = "Mindfulness Score",
       y        = "Life Satisfaction Score"
@@ -653,7 +653,7 @@ local({
     geom_point() +
     geom_smooth(method = "lm", se = TRUE) +
     labs(
-      title    = "Higher Mindfulness Associated with Lower Conscientiousness",
+      title    = "Relationship Between Mindfulness and Conscientiousness",
       subtitle = format_cor_subtitle(ct_mind_con),
       x        = "Mindfulness Score",
       y        = "Conscientiousness Score"
@@ -665,7 +665,7 @@ local({
     geom_point() +
     geom_smooth(method = "lm", se = TRUE) +
     labs(
-      title    = "Positive Relationship Between Life Satisfaction and Conscientiousness",
+      title    = "Relationship Between Life Satisfaction and Conscientiousness",
       subtitle = format_cor_subtitle(ct_sat_con),
       x        = "Life Satisfaction Score",
       y        = "Conscientiousness Score"
