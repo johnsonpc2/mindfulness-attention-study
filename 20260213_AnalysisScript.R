@@ -446,6 +446,21 @@ vs_data$full_data[
   by = .(sona_id, distractor_type, target_present)
 ] -> vs_data$full_data_subj
 
+# Diagnostic: manually compute all 6 correlations and print them
+# Compare these to what appears in the plot annotations
+vs_data$full_data_subj[
+  !is.na(satisfaction),
+  {
+    ct <- cor.test(satisfaction, avg_rt)
+    .(
+      r  = round(ct$estimate, 3),
+      p  = round(ct$p.value, 3),
+      n  = .N
+    )
+  },
+  by = .(distractor_type, target_present)
+][order(distractor_type, target_present)]
+
 # One row per subject for subscale intercorrelation plots (no RT or condition)
 vs_data$full_data_subj[
   ,
@@ -471,7 +486,7 @@ local({
   # Helper: format a cor.test result as a ggtext-compatible subtitle string
   format_cor_subtitle <- function(ct) {
     paste0(
-      "*r*(", ct$parameter, ") = ", sprintf("%.2f", ct$estimate),
+      "*r*(", ct$parameter, ") ", format_r(ct$estimate),
       ", *p* ", format_p(ct$p.value),
       ", 95% CI [", sprintf("%.2f", ct$conf.int[1]),
       ", ", sprintf("%.2f", ct$conf.int[2]), "]"
@@ -490,12 +505,15 @@ local({
           target_present = target_present[1],
           label = paste0(
             ifelse(target_present[1], "Present", "Absent"),
-            ": *r*(", ct$parameter, ") = ", sprintf("%.2f", ct$estimate),
+            ": *r*(", ct$parameter, ") ", format_r(ct$estimate),
             ", *p* ", format_p(ct$p.value)
           )
         )
       },
       by = .(distractor_type, target_present)
+    ][
+      # Explicitly order so Absent always appears before Present within each panel
+      order(distractor_type, target_present)
     ][
       ,
       .(
