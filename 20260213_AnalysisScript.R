@@ -485,7 +485,7 @@ local({
     as.data.table(data)[
       !is.na(get(x_var)),
       {
-        ct <- cor.test(.SD[[x_var]], avg_rt)
+        ct <- cor.test(get(x_var), avg_rt)
         .(
           target_present = target_present[1],
           label = paste0(
