@@ -85,11 +85,11 @@ local({
   describe(x = demo_temp3$age, fast = TRUE)                     -> age_stats
 
   results <- list(
-    "demographics"    = demo_temp3,
+    "demographics"     = demo_temp3,
     "subjects to keep" = subject_ids,
-    "gender"          = gender_table,
-    "race"            = race_table,
-    "age"             = age_stats
+    "gender"           = gender_table,
+    "race"             = race_table,
+    "age"              = age_stats
   )
 
 }) -> demo_data
@@ -239,16 +239,16 @@ local({
     scale_x_continuous(breaks = c(3, 6, 9)) +
     scale_y_continuous(limits = c(0, 1)) +
     labs(
-      title    = "Accuracy High Across All Conditions:",
-      subtitle = "No Set Size or Conjunction Effects",
-      y        = "pCorrect",
+      title    = "Accuracy by Conditions:",
+      subtitle = "No Set Size, Distractor, or Conjunction Effects",
+      y        = "Proportion Correct",
       x        = "Set Size"
     ) +
     guides(color = guide_legend(title = "Target")) +
     theme_pcj(
       legend.position      = c(0.98, 1.1),
       legend.key.spacing.x = unit(.5, "in"),
-      default_caption = FALSE
+      default_caption      = FALSE
     ) -> acc_plot
 
   # RT plot
@@ -280,7 +280,7 @@ local({
     theme_pcj(
       legend.position      = c(0.98, 1.1),
       legend.key.spacing.x = unit(.5, "in"),
-      default_caption = FALSE
+      default_caption      = FALSE
     ) -> rt_plot
 
   plot_results <- list(
@@ -335,90 +335,89 @@ plot_saver(
 
 local({
 
-# Extract survey responses for retained subjects; reshape to wide format
-raw_data[
-  sona_id %in% demo_data$`subjects to keep` & phase %like% "survey",
-  list(sona_id, phase, response)
-] -> survey_temp
+  # Extract survey responses for retained subjects; reshape to wide format
+  raw_data[
+    sona_id %in% demo_data$`subjects to keep` & phase %like% "survey",
+    list(sona_id, phase, response)
+  ] -> survey_temp
 
-widen_responses(DT = survey_temp, prefix = "phase") -> survey_temp2
+  widen_responses(DT = survey_temp, prefix = "phase") -> survey_temp2
 
-# Recode all item columns to numeric and shift from 0–4 to 1–5 scale
-recode_cols(dt = survey_temp2, cols = 2:65, class = "numeric") -> survey_temp3
+  # Recode all item columns to numeric and shift from 0–4 to 1–5 scale
+  recode_cols(dt = survey_temp2, cols = 2:65, class = "numeric") -> survey_temp3
 
-melt(
-  data          = survey_temp3,
-  id.vars       = "sona_id",
-  variable.name = "Measure",
-  value.name    = "item_score"
-) -> survey_temp4
+  melt(
+    data          = survey_temp3,
+    id.vars       = "sona_id",
+    variable.name = "Measure",
+    value.name    = "item_score"
+  ) -> survey_temp4
 
-survey_temp4[, item_score := item_score + 1]
+  survey_temp4[, item_score := item_score + 1]
 
-# Define Conscientiousness items and which are reverse-coded
-conscientiousness_items <- c(
-  "big5_survey_Thorough",
-  "big5_survey_Careless",
-  "big5_survey_Reliable",
-  "big5_survey_Disorganzied",
-  "big5_survey_Lazy",
-  "big5_survey_perservere",
-  "big5_survey_Efficient",
-  "big5_survey_plans",
-  "big5_survey_distracted"
-)
+  # Define Conscientiousness items and which are reverse-coded
+  conscientiousness_items <- c(
+    "big5_survey_Thorough",
+    "big5_survey_Careless",
+    "big5_survey_Reliable",
+    "big5_survey_Disorganzied",
+    "big5_survey_Lazy",
+    "big5_survey_perservere",
+    "big5_survey_Efficient",
+    "big5_survey_plans",
+    "big5_survey_distracted"
+  )
 
-reverse_items <- c(
-  "big5_survey_Careless",
-  "big5_survey_Disorganzied",
-  "big5_survey_Lazy",
-  "big5_survey_distracted"
-)
+  reverse_items <- c(
+    "big5_survey_Careless",
+    "big5_survey_Disorganzied",
+    "big5_survey_Lazy",
+    "big5_survey_distracted"
+  )
 
-# Reverse-score negatively-worded items (6 - score on a 1–5 scale)
-survey_temp4[
-  Measure %in% reverse_items,
-  item_score_recoded := 6 - item_score
-][
-  !(Measure %in% reverse_items),
-  item_score_recoded := item_score
-]
+  # Reverse-score negatively-worded items (6 - score on a 1–5 scale)
+  survey_temp4[
+    Measure %in% reverse_items,
+    item_score_recoded := 6 - item_score
+  ][
+    !(Measure %in% reverse_items),
+    item_score_recoded := item_score
+  ]
 
-# Compute subscale scores:
-#   Mindfulness:        mean of items; higher scores, should mean lower reported negative emotional states; address when we write up!
-#   Life Satisfaction:  sum of items; 5-35; average 20-24 (neutral)
-#   Conscientiousness:  sum of all items, with negatively-worded items
-#                       reverse-scored prior to summing
-survey_temp4[
-  Measure %like% "mindfulness",
-  score := mean(item_score, na.rm = TRUE),
-  by = "sona_id"
-][
-  Measure %like% "satisfaction",
-  score := sum(item_score, na.rm = TRUE),
-  by = "sona_id"
-][
-  Measure %in% conscientiousness_items,
-  score := mean(item_score_recoded, na.rm = TRUE),
-  by = "sona_id"
-] -> survey_temp5
+  # Compute subscale scores:
+  #   Mindfulness:        mean of items; higher scores = lower negative affect
+  #   Life Satisfaction:  sum of items; 5-35; average 20-24 (neutral)
+  #   Conscientiousness:  mean of items, negatively-worded items reverse-scored
+  survey_temp4[
+    Measure %like% "mindfulness",
+    score := mean(item_score, na.rm = TRUE),
+    by = "sona_id"
+  ][
+    Measure %like% "satisfaction",
+    score := sum(item_score, na.rm = TRUE),
+    by = "sona_id"
+  ][
+    Measure %in% conscientiousness_items,
+    score := mean(item_score_recoded, na.rm = TRUE),
+    by = "sona_id"
+  ] -> survey_temp5
 
-# Extract one score per person per subscale and combine into a single table
-list(
-  survey_temp5[Measure %like% "mindfulness",
-               .(Measure = "mindfulness",      score = unique(score)), by = "sona_id"],
-  survey_temp5[Measure %like% "satisfaction",
-               .(Measure = "satisfaction",     score = unique(score)), by = "sona_id"],
-  survey_temp5[Measure %in% conscientiousness_items,
-               .(Measure = "conscientiousness", score = unique(score)), by = "sona_id"]
-) |> rbindlist() -> survey_scores
+  # Extract one score per person per subscale and combine into a single table
+  list(
+    survey_temp5[Measure %like% "mindfulness",
+                 .(Measure = "mindfulness",       score = unique(score)), by = "sona_id"],
+    survey_temp5[Measure %like% "satisfaction",
+                 .(Measure = "satisfaction",      score = unique(score)), by = "sona_id"],
+    survey_temp5[Measure %in% conscientiousness_items,
+                 .(Measure = "conscientiousness", score = unique(score)), by = "sona_id"]
+  ) |> rbindlist() -> survey_scores
 
-# Reshape to wide format: one row per subject with a column per subscale
-dcast(
-  data      = survey_scores,
-  formula   = sona_id ~ Measure,
-  value.var = "score"
-)
+  # Reshape to wide format: one row per subject with a column per subscale
+  dcast(
+    data      = survey_scores,
+    formula   = sona_id ~ Measure,
+    value.var = "score"
+  )
 
 }) -> survey_data
 
@@ -433,9 +432,34 @@ merge(
   all.x = TRUE
 ) -> vs_data$full_data
 
+# Collapse to one row per subject per distractor_type x target_present
+# condition for use in survey correlation plots, so each subject
+# contributes equally regardless of how many set size rows they have
+vs_data$full_data[
+  ,
+  .(
+    avg_rt            = mean(avg_rt,            na.rm = TRUE),
+    mindfulness       = mean(mindfulness,       na.rm = TRUE),
+    satisfaction      = mean(satisfaction,      na.rm = TRUE),
+    conscientiousness = mean(conscientiousness, na.rm = TRUE)
+  ),
+  by = .(sona_id, distractor_type, target_present)
+] -> vs_data$full_data_subj
+
+# One row per subject for subscale intercorrelation plots (no RT or condition)
+vs_data$full_data_subj[
+  ,
+  .(
+    mindfulness       = mean(mindfulness,       na.rm = TRUE),
+    satisfaction      = mean(satisfaction,      na.rm = TRUE),
+    conscientiousness = mean(conscientiousness, na.rm = TRUE)
+  ),
+  by = sona_id
+] -> vs_data$subj_scores
+
+
 # Survey × RT Plots -----------------------------------------------------------
 
-# Merge per-subject slopes with survey data for the mindfulness correlation
 # Merge per-subject slopes with survey data for the mindfulness correlation
 rt_slopes[
   survey_data[, .(sona_id, mindfulness)],
@@ -452,6 +476,35 @@ local({
       ", 95% CI [", sprintf("%.2f", ct$conf.int[1]),
       ", ", sprintf("%.2f", ct$conf.int[2]), "]"
     )
+  }
+
+  # Helper: compute per-panel correlation labels for a survey ~ RT plot.
+  # Uses full_data_subj (one row per subject per condition) so each subject
+  # contributes equally. Returns one collapsed label per distractor_type panel.
+  make_survey_cor_labels <- function(data, x_var, x_pos = -Inf, y_pos = Inf) {
+    as.data.table(data)[
+      !is.na(get(x_var)),
+      {
+        ct <- cor.test(.SD[[x_var]], avg_rt)
+        .(
+          target_present = target_present[1],
+          label = paste0(
+            ifelse(target_present[1], "Present", "Absent"),
+            ": *r*(", ct$parameter, ") = ", sprintf("%.2f", ct$estimate),
+            ", *p* ", format_p(ct$p.value)
+          )
+        )
+      },
+      by = .(distractor_type, target_present)
+    ][
+      ,
+      .(
+        label = paste(label, collapse = "<br>"),
+        x_pos = x_pos,
+        y_pos = y_pos
+      ),
+      by = distractor_type
+    ]
   }
 
   # Helper: build a faceted scatterplot of avg RT by a given survey score.
@@ -475,8 +528,8 @@ local({
           `red_circle`    = "Red Circle"
         ))
       ) +
-      scale_y_continuous(limits = c(0, mean(vs_data$full_data$avg_rt) +
-                                      2 * sd(vs_data$full_data$avg_rt))) +
+      scale_y_continuous(limits = c(0, mean(vs_data$full_data_subj$avg_rt) +
+                                      2 * sd(vs_data$full_data_subj$avg_rt))) +
       labs(
         title    = paste("Response Time by", x_label),
         subtitle = paste("Relationship between", x_label, "and visual search RT"),
@@ -487,7 +540,7 @@ local({
       theme_pcj(
         legend.position      = c(0.98, 1.1),
         legend.key.spacing.x = unit(.5, "in"),
-        default_caption = FALSE
+        default_caption      = FALSE
       )
   }
 
@@ -509,51 +562,60 @@ local({
     theme_pcj(default_caption = FALSE) +
     theme(plot.subtitle = ggtext::element_markdown()) -> mindfulness_slope_plot
 
-  # Mindfulness ~ RT broken out by set size, target presence, and distractor type
-  ggplot(
-    data    = vs_data$full_data[!is.na(mindfulness)],
-    mapping = aes(
-      x     = mindfulness,
-      y     = avg_rt,
-      color = factor(set_size, labels = c("3", "6", "9"))
-    )
-  ) +
-    geom_point(alpha = 0.5, size = 2) +
-    geom_smooth(method = "lm", se = TRUE) +
-    facet_grid(target_present ~ distractor_type) +
-    scale_y_continuous(limits = c(0, mean(vs_data$full_data$avg_rt) +
-                                    2 * sd(vs_data$full_data$avg_rt))) +
-    labs(
-      title    = "Response Time by Mindfulness Score",
-      subtitle = "Broken out by Set Size, Target Presence, and Distractor Type",
-      y        = "Average RT (ms)",
-      x        = "Mindfulness Score"
-    ) +
-    guides(color = guide_legend(title = "Set Size")) +
-    theme_pcj(
-      legend.position      = c(0.98, 1.1),
-      legend.key.spacing.x = unit(.5, "in"),
-      default_caption      = FALSE
-    ) -> mindfulness_rt_by_condition_plot
+  # Life satisfaction ~ RT
+  satisfaction_cor_labels <- make_survey_cor_labels(
+    data  = vs_data$full_data_subj,
+    x_var = "satisfaction"
+  )
 
-  # Survey score ~ RT plots (faceted, using shared helper)
-  satisfaction_rt_plot      <- make_survey_rt_plot(vs_data$full_data, "satisfaction",      "Life Satisfaction Score") +
+  satisfaction_rt_plot <- make_survey_rt_plot(
+    vs_data$full_data_subj, "satisfaction", "Life Satisfaction Score"
+  ) +
+    ggtext::geom_richtext(
+      data    = satisfaction_cor_labels,
+      mapping = aes(x = x_pos, y = y_pos, label = label),
+      hjust       = -0.05,
+      vjust       = 1.1,
+      size        = 3.5,
+      fill        = "white",
+      label.color = NA,
+      inherit.aes = FALSE
+    ) +
     labs(
-      title = "Life Satisfaction and Mindfulness:",
-      subtitle = "Happy People are Faster When Targets are Present"
+      title    = "Life Satisfaction and Visual Search RT:",
+      subtitle = "Satisfied People are Faster When Targets are Present"
     )
-  conscientiousness_rt_plot <- make_survey_rt_plot(vs_data$full_data, "conscientiousness", "Conscientiousness Score")+
+
+  # Conscientiousness ~ RT
+  conscientiousness_cor_labels <- make_survey_cor_labels(
+    data  = vs_data$full_data_subj,
+    x_var = "conscientiousness"
+  )
+
+  conscientiousness_rt_plot <- make_survey_rt_plot(
+    vs_data$full_data_subj, "conscientiousness", "Conscientiousness Score"
+  ) +
+    ggtext::geom_richtext(
+      data    = conscientiousness_cor_labels,
+      mapping = aes(x = x_pos, y = y_pos, label = label),
+      hjust       = -0.05,
+      vjust       = 1.1,
+      size        = 3.5,
+      fill        = "white",
+      label.color = NA,
+      inherit.aes = FALSE
+    ) +
     labs(
-      title = "Conscientiousness and Mindfulness:",
+      title    = "Conscientiousness and Visual Search RT:",
       subtitle = "Conscientious People are Faster When Targets are Present"
     )
 
-  # Relationships between survey subscales
-  ct_mind_sat <- cor.test(vs_data$full_data$mindfulness, vs_data$full_data$satisfaction)
-  ct_mind_con <- cor.test(vs_data$full_data$mindfulness, vs_data$full_data$conscientiousness)
-  ct_sat_con  <- cor.test(vs_data$full_data$satisfaction, vs_data$full_data$conscientiousness)
+  # Relationships between survey subscales — one row per subject, no RT involved
+  ct_mind_sat <- cor.test(vs_data$subj_scores$mindfulness, vs_data$subj_scores$satisfaction)
+  ct_mind_con <- cor.test(vs_data$subj_scores$mindfulness, vs_data$subj_scores$conscientiousness)
+  ct_sat_con  <- cor.test(vs_data$subj_scores$satisfaction, vs_data$subj_scores$conscientiousness)
 
-  ggplot(vs_data$full_data, aes(x = mindfulness, y = satisfaction)) +
+  ggplot(vs_data$subj_scores, aes(x = mindfulness, y = satisfaction)) +
     geom_point() +
     geom_smooth(method = "lm", se = TRUE) +
     labs(
@@ -564,7 +626,7 @@ local({
     theme_pcj(default_caption = FALSE) +
     theme(plot.subtitle = ggtext::element_markdown()) -> mind_sat_plot
 
-  ggplot(vs_data$full_data, aes(x = mindfulness, y = conscientiousness)) +
+  ggplot(vs_data$subj_scores, aes(x = mindfulness, y = conscientiousness)) +
     geom_point() +
     geom_smooth(method = "lm", se = TRUE) +
     labs(
@@ -575,7 +637,7 @@ local({
     theme_pcj(default_caption = FALSE) +
     theme(plot.subtitle = ggtext::element_markdown()) -> mind_con_plot
 
-  ggplot(vs_data$full_data, aes(x = satisfaction, y = conscientiousness)) +
+  ggplot(vs_data$subj_scores, aes(x = satisfaction, y = conscientiousness)) +
     geom_point() +
     geom_smooth(method = "lm", se = TRUE) +
     labs(
@@ -588,7 +650,6 @@ local({
 
   plot_results <- list(
     "mindfulness_slope"              = mindfulness_slope_plot,
-    "mindfulness_rt_by_condition"    = mindfulness_rt_by_condition_plot,
     "satisfaction_rt"                = satisfaction_rt_plot,
     "conscientiousness_rt"           = conscientiousness_rt_plot,
     "mindfulness_satisfaction"       = mind_sat_plot,
