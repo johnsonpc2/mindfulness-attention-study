@@ -647,7 +647,7 @@ local({
       y        = "Life Satisfaction Score"
     ) +
     theme_pcj(default_caption = FALSE,
-              plot.title = ggplot2::element_text(size = ggplot2::rel(1.8))) +
+              plot.title = ggplot2::element_text(size = ggplot2::rel(2.2))) +
     theme(plot.subtitle = ggtext::element_markdown()) -> mind_sat_plot
 
   ggplot(vs_data$subj_scores, aes(x = mindfulness, y = conscientiousness)) +
@@ -660,7 +660,7 @@ local({
       y        = "Conscientiousness Score"
     ) +
     theme_pcj(default_caption = FALSE,
-              plot.title = ggplot2::element_text(size = ggplot2::rel(1.8))) +
+              plot.title = ggplot2::element_text(size = ggplot2::rel(2.2))) +
     theme(plot.subtitle = ggtext::element_markdown()) -> mind_con_plot
 
   ggplot(vs_data$subj_scores, aes(x = satisfaction, y = conscientiousness)) +
@@ -673,7 +673,7 @@ local({
       y        = "Conscientiousness Score"
     ) +
     theme_pcj(default_caption = FALSE,
-              plot.title = ggplot2::element_text(size = ggplot2::rel(1.8))) +
+              plot.title = ggplot2::element_text(size = ggplot2::rel(2.2))) +
     theme(plot.subtitle = ggtext::element_markdown()) -> sat_con_plot
 
   plot_results <- list(
