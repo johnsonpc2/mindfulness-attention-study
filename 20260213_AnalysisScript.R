@@ -200,11 +200,11 @@ emtrends(
 summary(rt_trends)
 
 
-# Step 2: Per-subject Search Efficiency for Mindfulness Correlation ----------
+# Step 2: Per-subject Search Efficiency for Survey Correlations --------------
 
 # Compute each person's individual RT slope across set sizes.
 # Collapsing across distractor type and target presence gives one
-# efficiency score per person suitable for a downstream correlation.
+# efficiency score per person suitable for downstream correlations.
 rt_model_data[
   ,
   .(slope = coef(lm(avg_rt ~ set_size_num))["set_size_num"]),
@@ -446,21 +446,6 @@ vs_data$full_data[
   by = .(sona_id, distractor_type, target_present)
 ] -> vs_data$full_data_subj
 
-# Diagnostic: manually compute all 6 correlations and print them
-# Compare these to what appears in the plot annotations
-vs_data$full_data_subj[
-  !is.na(satisfaction),
-  {
-    ct <- cor.test(satisfaction, avg_rt)
-    .(
-      r  = round(ct$estimate, 3),
-      p  = round(ct$p.value, 3),
-      n  = .N
-    )
-  },
-  by = .(distractor_type, target_present)
-][order(distractor_type, target_present)]
-
 # One row per subject for subscale intercorrelation plots (no RT or condition)
 vs_data$full_data_subj[
   ,
@@ -475,9 +460,11 @@ vs_data$full_data_subj[
 
 # Survey × RT Plots -----------------------------------------------------------
 
-# Merge per-subject slopes with survey data for the mindfulness correlation
+# Merge per-subject slopes with mindfulness and conscientiousness scores.
+# Both are subject-level (one row per subject in survey_data), so the join
+# produces one row per subject in rt_slopes — no duplication.
 rt_slopes[
-  survey_data[, .(sona_id, mindfulness)],
+  survey_data[, .(sona_id, mindfulness, conscientiousness)],
   on = "sona_id"
 ] -> rt_slopes
 
@@ -488,8 +475,8 @@ local({
     paste0(
       "*r*(", ct$parameter, ") ", format_r(ct$estimate),
       ", *p* ", format_p(ct$p.value),
-      ", 95% CI [", sprintf("%.2f", ct$conf.int[1]),
-      ", ", sprintf("%.2f", ct$conf.int[2]), "]"
+      ", 95% CI [", format_r(ct$conf.int[1]),
+      ", ", format_r(ct$conf.int[2]), "]"
     )
   }
 
@@ -512,7 +499,6 @@ local({
       },
       by = .(distractor_type, target_present)
     ][
-      # Explicitly order so Absent always appears before Present within each panel
       order(distractor_type, target_present)
     ][
       ,
@@ -572,13 +558,31 @@ local({
     geom_point(alpha = 0.5, size = 2) +
     geom_smooth(method = "lm", se = TRUE) +
     labs(
-      title    = "Search Efficiency by Mindfulness Score",
+      title    = "Mindfulness Unrelated to Search Efficiency",
       subtitle = format_cor_subtitle(ct_mindfulness),
       y        = "RT Slope (ms/item)",
       x        = "Mindfulness Score"
     ) +
     theme_pcj(default_caption = FALSE) +
     theme(plot.subtitle = ggtext::element_markdown()) -> mindfulness_slope_plot
+
+  # Conscientiousness: correlation with per-subject RT slope (search efficiency)
+  ct_conscientiousness <- cor.test(rt_slopes$slope, rt_slopes$conscientiousness)
+
+  ggplot(
+    data    = rt_slopes[!is.na(conscientiousness)],
+    mapping = aes(x = conscientiousness, y = slope)
+  ) +
+    geom_point(alpha = 0.5, size = 2) +
+    geom_smooth(method = "lm", se = TRUE) +
+    labs(
+      title    = "Conscientiousness and Search Efficiency",
+      subtitle = format_cor_subtitle(ct_conscientiousness),
+      y        = "RT Slope (ms/item)",
+      x        = "Conscientiousness Score"
+    ) +
+    theme_pcj(default_caption = FALSE) +
+    theme(plot.subtitle = ggtext::element_markdown()) -> conscientiousness_slope_plot
 
   # Life satisfaction ~ RT
   satisfaction_cor_labels <- make_survey_cor_labels(
@@ -625,7 +629,7 @@ local({
     ) +
     labs(
       title    = "Conscientiousness and Visual Search RT:",
-      subtitle = "Conscientious People are Faster When Targets are Present"
+      subtitle = "Conscientious People Slower When Targets are Absent"
     )
 
   # Relationships between survey subscales — one row per subject, no RT involved
@@ -637,6 +641,7 @@ local({
     geom_point() +
     geom_smooth(method = "lm", se = TRUE) +
     labs(
+      title    = "Higher Mindfulness Associated with Lower Life Satisfaction",
       subtitle = format_cor_subtitle(ct_mind_sat),
       x        = "Mindfulness Score",
       y        = "Life Satisfaction Score"
@@ -648,6 +653,7 @@ local({
     geom_point() +
     geom_smooth(method = "lm", se = TRUE) +
     labs(
+      title    = "Higher Mindfulness Associated with Lower Conscientiousness",
       subtitle = format_cor_subtitle(ct_mind_con),
       x        = "Mindfulness Score",
       y        = "Conscientiousness Score"
@@ -659,6 +665,7 @@ local({
     geom_point() +
     geom_smooth(method = "lm", se = TRUE) +
     labs(
+      title    = "Positive Relationship Between Life Satisfaction and Conscientiousness",
       subtitle = format_cor_subtitle(ct_sat_con),
       x        = "Life Satisfaction Score",
       y        = "Conscientiousness Score"
@@ -668,6 +675,7 @@ local({
 
   plot_results <- list(
     "mindfulness_slope"              = mindfulness_slope_plot,
+    "conscientiousness_slope"        = conscientiousness_slope_plot,
     "satisfaction_rt"                = satisfaction_rt_plot,
     "conscientiousness_rt"           = conscientiousness_rt_plot,
     "mindfulness_satisfaction"       = mind_sat_plot,
