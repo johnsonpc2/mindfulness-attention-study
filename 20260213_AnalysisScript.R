@@ -590,8 +590,18 @@ local({
     ) +
     theme_pcj(default_caption = FALSE) -> mindfulness_slope_plot
 
-  # Conscientiousness: correlation with per-subject RT slope (search efficiency)
-  ct_conscientiousness <- cor.test(rt_slopes$slope, rt_slopes$conscientiousness)
+  # Conscientiousness: per-panel correlation labels (one r per distractor_type facet)
+  conscientiousness_slope_labels <- as.data.table(rt_slopes)[
+    !is.na(conscientiousness),
+    {
+      ct <- cor.test(conscientiousness, slope)
+      .(label = paste0(
+        "*r*(", ct$parameter, ") ", format_r(ct$estimate),
+        ", *p* ", format_p(ct$p.value)
+      ))
+    },
+    by = distractor_type
+  ]
 
   ggplot(
     data    = rt_slopes[!is.na(conscientiousness)],
@@ -599,14 +609,28 @@ local({
   ) +
     geom_point(alpha = 0.5, size = 2) +
     geom_smooth(method = "lm", se = TRUE) +
+    ggtext::geom_richtext(
+      data        = conscientiousness_slope_labels,
+      mapping     = aes(x = -Inf, y = Inf, label = label),
+      hjust       = -0.05,
+      vjust       = 1.1,
+      size        = 3.5,
+      fill        = "white",
+      label.color = NA,
+      inherit.aes = FALSE
+    ) +
+    facet_wrap(~distractor_type, labeller = as_labeller(c(
+      `blue_triangle` = "Blue Triangle",
+      `red_blue_mix`  = "Red/Blue Mix",
+      `red_circle`    = "Red Circle"
+    ))) +
     labs(
       title    = "Conscientiousness and Search Efficiency",
-      subtitle = format_cor_subtitle(ct_conscientiousness),
+      subtitle = NULL,
       y        = "RT Slope (ms/item)",
       x        = "Conscientiousness Score"
     ) +
-    theme_pcj(default_caption = FALSE) +
-    theme(plot.subtitle = ggtext::element_markdown()) -> conscientiousness_slope_plot
+    theme_pcj(default_caption = FALSE) -> conscientiousness_slope_plot
 
   # Life satisfaction ~ RT
   satisfaction_cor_labels <- make_survey_cor_labels(
