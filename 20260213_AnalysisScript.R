@@ -202,13 +202,13 @@ summary(rt_trends)
 
 # Step 2: Per-subject Search Efficiency for Survey Correlations --------------
 
-# Compute each person's individual RT slope across set sizes.
-# Collapsing across distractor type and target presence gives one
-# efficiency score per person suitable for downstream correlations.
+# Compute each person's RT slope across set sizes within each distractor_type.
+# This gives one efficiency score per person per distractor condition,
+# suitable for the faceted mindfulness plot below.
 rt_model_data[
   ,
   .(slope = coef(lm(avg_rt ~ set_size_num))["set_size_num"]),
-  by = sona_id
+  by = .(sona_id, distractor_type)
 ] -> rt_slopes
 
 
@@ -548,7 +548,7 @@ local({
       )
   }
 
-  # Mindfulness: correlation with per-subject RT slope (search efficiency)
+  # Mindfulness: correlation with per-subject RT slope, split by distractor and set size
   ct_mindfulness <- cor.test(rt_slopes$slope, rt_slopes$mindfulness)
 
   ggplot(
@@ -557,6 +557,11 @@ local({
   ) +
     geom_point(alpha = 0.5, size = 2) +
     geom_smooth(method = "lm", se = TRUE) +
+    facet_wrap(~distractor_type, labeller = as_labeller(c(   # fixed: was ~distractor
+      `blue_triangle` = "Blue Triangle",
+      `red_blue_mix`  = "Red/Blue Mix",
+      `red_circle`    = "Red Circle"
+    ))) +
     labs(
       title    = "Mindfulness Unrelated to Search Efficiency",
       subtitle = format_cor_subtitle(ct_mindfulness),
