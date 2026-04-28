@@ -548,8 +548,18 @@ local({
       )
   }
 
-  # Mindfulness: correlation with per-subject RT slope, split by distractor and set size
-  ct_mindfulness <- cor.test(rt_slopes$slope, rt_slopes$mindfulness)
+  # Mindfulness: per-panel correlation labels (one r per distractor_type facet)
+  mindfulness_slope_labels <- as.data.table(rt_slopes)[
+    !is.na(mindfulness),
+    {
+      ct <- cor.test(mindfulness, slope)
+      .(label = paste0(
+        "*r*(", ct$parameter, ") ", format_r(ct$estimate),
+        ", *p* ", format_p(ct$p.value)
+      ))
+    },
+    by = distractor_type
+  ]
 
   ggplot(
     data    = rt_slopes[!is.na(mindfulness)],
@@ -557,19 +567,28 @@ local({
   ) +
     geom_point(alpha = 0.5, size = 2) +
     geom_smooth(method = "lm", se = TRUE) +
-    facet_wrap(~distractor_type, labeller = as_labeller(c(   # fixed: was ~distractor
+    ggtext::geom_richtext(
+      data        = mindfulness_slope_labels,
+      mapping     = aes(x = -Inf, y = Inf, label = label),
+      hjust       = -0.05,
+      vjust       = 1.1,
+      size        = 3.5,
+      fill        = "white",
+      label.color = NA,
+      inherit.aes = FALSE
+    ) +
+    facet_wrap(~distractor_type, labeller = as_labeller(c(
       `blue_triangle` = "Blue Triangle",
       `red_blue_mix`  = "Red/Blue Mix",
       `red_circle`    = "Red Circle"
     ))) +
     labs(
       title    = "Mindfulness Unrelated to Search Efficiency",
-      subtitle = format_cor_subtitle(ct_mindfulness),
+      subtitle = NULL,                            # removed: was a single pooled r
       y        = "RT Slope (ms/item)",
       x        = "Mindfulness Score"
     ) +
-    theme_pcj(default_caption = FALSE) +
-    theme(plot.subtitle = ggtext::element_markdown()) -> mindfulness_slope_plot
+    theme_pcj(default_caption = FALSE) -> mindfulness_slope_plot
 
   # Conscientiousness: correlation with per-subject RT slope (search efficiency)
   ct_conscientiousness <- cor.test(rt_slopes$slope, rt_slopes$conscientiousness)
