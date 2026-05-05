@@ -108,7 +108,8 @@ local({
     `:=`(
       rt       = as.numeric(rt),
       block    = block + 1,
-      set_size = lengths(strsplit(gsub('\\[|\\]|"', "", stimuli_list), ","))
+      set_size = lengths(strsplit(gsub('\\[|\\]|"', "", stimuli_list), ",")),
+      response = tolower(response)
     )
   ][, stimuli_list := NULL] -> vs_data
 
