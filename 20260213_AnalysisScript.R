@@ -725,6 +725,34 @@ local({
               plot.title = ggplot2::element_text(size = ggplot2::rel(2.2))) +
     theme(plot.subtitle = ggtext::element_markdown()) -> sat_con_plot
 
+# Mindfulness ~ RT
+#
+# Mindfulness did not predict visual search RT, χ²(1) = 0.75, p = .387, nor did it
+# interact with distractor type, χ²(2) = 3.12, p = .211, target presence,
+# χ²(1) = 2.79, p = .095, or their combination, χ²(2) = 3.17, p = .205.
+  mindfulness_cor_labels <- make_survey_cor_labels(
+    data  = vs_data$full_data_subj,
+    x_var = "mindfulness"
+  )
+
+  mindfulness_rt_plot <- make_survey_rt_plot(
+    vs_data$full_data_subj, "mindfulness", "Mindfulness Score"
+  ) +
+    ggtext::geom_richtext(
+      data        = mindfulness_cor_labels,
+      mapping     = aes(x = x_pos, y = y_pos, label = label),
+      hjust       = -0.05,
+      vjust       = 1.1,
+      size        = 3.5,
+      fill        = "white",
+      label.color = NA,
+      inherit.aes = FALSE
+    ) +
+    labs(
+      title    = "Mindfulness and Visual Search RT",
+      subtitle = "No Relationship Between Mindfulness and Search RT"
+    )
+
   plot_results <- list(
     "mindfulness_slope"              = mindfulness_slope_plot,
     "conscientiousness_slope"        = conscientiousness_slope_plot,
@@ -732,7 +760,8 @@ local({
     "conscientiousness_rt"           = conscientiousness_rt_plot,
     "mindfulness_satisfaction"       = mind_sat_plot,
     "mindfulness_conscientiousness"  = mind_con_plot,
-    "conscientiousness_satisfaction" = sat_con_plot
+    "conscientiousness_satisfaction" = sat_con_plot,
+    "mindfulness_rt"                 = mindfulness_rt_plot
   )
 
 }) -> vs_data$survey_rt_plots
@@ -746,6 +775,49 @@ plot_saver(
   width   = 15.5,
   height  = 9
 )
+
+# Mindfulness × RT Test -------------------------------------------------------
+
+# Sum-to-zero contrasts so Type III main effects are interpretable
+options(contrasts = c("contr.sum", "contr.poly"))
+
+# Model data: one row per subject x distractor x target; factors set;
+# mindfulness grand-mean centered (on subjects, not rows)
+mind_mean <- mean(vs_data$subj_scores$mindfulness, na.rm = TRUE)
+
+vs_data$full_data_subj[!is.na(mindfulness)][
+  , `:=`(
+    mindfulness_c   = mindfulness - mind_mean,
+    distractor_type = factor(distractor_type),
+    target_present  = factor(target_present, labels = c("Absent", "Present"))
+  )
+] -> mind_model_data
+
+# Mixed model: mindfulness x within-subject factors, random intercepts
+mind_rt_lmer <- lmer(
+  avg_rt ~ mindfulness_c * distractor_type * target_present + (1 | sona_id),
+  data = mind_model_data
+)
+
+# Omnibus tests: main effect of mindfulness = overall relationship with RT;
+# interactions = whether that relationship differs by condition
+car::Anova(mind_rt_lmer, type = 3)
+
+# Mindfulness slope (ms per scale point) within each condition
+emtrends(
+  mind_rt_lmer,
+  specs = ~ target_present | distractor_type,
+  var   = "mindfulness_c"
+) -> mind_trends
+
+summary(mind_trends, infer = TRUE)
+
+# Optional: compare the slopes for Present vs. Absent within each distractor type
+pairs(mind_trends, by = "distractor_type", adjust = "bonferroni") |>
+  summary(by = NULL, adjust = "bonferroni")
+
+# Reset contrasts to R defaults
+options(contrasts = c("contr.treatment", "contr.poly"))
 
 
 # Backup to GitHub ------------------------------------------------------------
