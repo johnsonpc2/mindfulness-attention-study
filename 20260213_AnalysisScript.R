@@ -1,839 +1,796 @@
-
 # Script:      AnalysisScript
 # Author:      Pierce C. Johnson
 # Created:     20260213
-# Modified:    20260227
-# Description: Analyzes behavioral and survey data from the Mindfulness and
-#   Attention Study (Spring 2026). Covers participant exclusions, visual search
-#   RT/accuracy, and relationships between survey scores (mindfulness, life
-#   satisfaction, conscientiousness) and search performance.
+# Modified:    20261105
+# Description: Mindfulness and Attention Study (Spring 2026). Participant
+#   exclusions, visual search RT/accuracy, and relationships between survey
+#   scores (mindfulness, life satisfaction, conscientiousness) and search
+#   performance.
 #
 # Output:      Plots saved to ./plots; data backed up to GitHub
 #
 # Shortcuts:
-#   alt + shift + k: shortcut guide
-#   alt + o:         collapse all sections
-#   alt + shift + o: expand all sections
-#   ctrl + alt + t:  run code section
+#   alt + shift + k:  shortcut guide
+#   alt + o:          collapse all sections
+#   alt + shift + o:  expand all sections
+#   ctrl + alt + t:   run code section
+#   ctrl + alt + b:   run all code until the currently selected line
 
 
-# NOTES -------------------------------------------------------------------
+# NOTES ------------------------------------------------------------------------
 
-#   1. Add layer of points to the accuracy plot so you can see the distribution
-#     of the data
+#   1. Add layer of points to the accuracy plot so you can see the
+#      distribution of the data
 
 
-# Setup -----------------------------------------------------------------------
+# 1. Setup ---------------------------------------------------------------------
 
-# First we need to install useful packages from GitHub
-devtools::install_github(
-  repo = c("johnsonpc2/pcjtools", "bcdudek/bcdstats")
+# One-time install of lab packages (uncomment to update)
+# devtools::install_github(c("johnsonpc2/pcjtools", "bcdudek/bcdstats"))
+
+pcjtools::load_packages(
+
+  x = c("bcdstats", "car", "data.table", "emmeans", "ggplot2", "ggtext",
+        "gtsummary", "lme4", "pcjtools", "psych")
+
 )
 
-# Load all packages used in this script
-pcjtools::load_packages(c(
-  "bcdstats", "car", "data.table", "emmeans",
-  "ggplot2", "gtsummary", "lme4", "pcjtools", "psych"
-))
 
-# Pull latest data files from the Pavlovia GitLab repository
+# Data frozen for the manuscript (collection ended 2026-05-04)
 # git_pull(sleep = 5)
 
-# Clear workspace before analysis
 clean_workspace(confirm = FALSE)
 
 
-# Read In Data ----------------------------------------------------------------
+paths <- list(
 
-# Get list of all raw CSV files in the data folder, then import them
-files_info(path = "./data", extension = ".csv") -> data_files
-import_data(x = data_files$filepath) -> raw_data
+  raw   = "./data",  # Raw Pavlovia CSV files
+  plots = "./plots"  # Saved figures
+
+)
 
 
-# Clean Data ------------------------------------------------------------------
+## Exclusions ##
 
-local({
+# 15 subjects; 22 files (157 -> 142)
+exclude_ids <- c(
 
-  # Filter to just demographic trials; keep ID, phase, and response columns
-  raw_data[
-    phase %like% "demographics",
+  75815, 78593, 78958, 79098, 79221,        # Multiple attempts (2,2,2,3,2)
+  79251,                                    # No age; multiple attempts (2)
+  78848, 79283, 79085,                      # Not English proficient (3)
+  78360, 78371, 78393, 78573, 78921, 79106  # Outlier RT trials > 5% (6)
+
+)
+
+
+n_rows_expected <- 295 # Rows in one complete session
+
+
+## Survey items ##
+
+consc_items <- c(
+
+  "big5_survey_Thorough", "big5_survey_Careless", "big5_survey_Reliable",
+  "big5_survey_Disorganzied", "big5_survey_Lazy", "big5_survey_perservere",
+  "big5_survey_Efficient", "big5_survey_plans", "big5_survey_distracted"
+
+)
+
+
+consc_reverse <- c(
+
+  "big5_survey_Careless", "big5_survey_Disorganzied",
+  "big5_survey_Lazy", "big5_survey_distracted"
+
+)
+
+
+## Labels ##
+
+distractor_labs <- as_labeller(c(
+
+  blue_triangle = "Blue Triangle",
+  red_blue_mix  = "Red/Blue Mix",
+  red_circle    = "Red Circle"
+
+))
+
+
+target_labs <- c("Absent", "Present") # target_present FALSE, TRUE
+
+
+## Helper functions ##
+
+# "*r*(df) = .xx, *p* = .xxx" from a cor.test result
+cor_label <- function(ct) {
+
+  paste0(
+
+    "*r*(", ct$parameter, ") ", format_r(ct$estimate),
+    ", *p* ", format_p(ct$p.value)
+
+  )
+
+}
+
+
+# Drop the leading "= " that format_r() adds (used inside CIs)
+strip_eq <- function(x) sub("^\\s*=\\s*", "", x)
+
+
+# Full subtitle: r, p, and 95% CI
+cor_subtitle <- function(ct) {
+
+  paste0(
+
+    cor_label(ct),
+    ", 95% CI [", strip_eq(format_r(ct$conf.int[1])),
+    ", ", strip_eq(format_r(ct$conf.int[2])), "]"
+
+  )
+
+}
+
+
+# Correlation text box in the top-left corner of each facet
+cor_text_layer <- function(labels) {
+
+  ggtext::geom_richtext(
+
+    data        = labels,
+    mapping     = aes(x = -Inf, y = Inf, label = label),
+    hjust       = -0.05,
+    vjust       = 1.1,
+    size        = 3.5,
+    fill        = "white",
+    label.color = NA,
+    inherit.aes = FALSE
+
+  )
+
+}
+
+
+# Theme for faceted condition plots (legend top right)
+theme_facets <- theme_pcj(
+
+  legend.position      = c(0.98, 1.1),
+  legend.key.spacing.x = unit(0.5, "in"),
+  default_caption      = FALSE
+
+)
+
+
+# 2. Load Data -----------------------------------------------------------------
+
+data <- list()
+
+
+data_files <- files_info(path = paths$raw, extension = ".csv")
+
+data$raw <- import_data(x = data_files$filepath)
+
+
+# 3. Demographics & Exclusions -------------------------------------------------
+
+data$demo <- local({
+
+  demo <- data$raw[
+
+    phase %like% "demographics" & !sona_id %in% exclude_ids,
     list(sona_id, phase, response)
-  ] -> demo_temp
 
-  # Exclude subjects for the following reasons (15 subjects; 22 files):
-  demo_temp[!sona_id %in% c(
-    75815, 78593, 78958, 79098, 79221,        # multiple attempts (2, 2, 2, 3, 2)
-    79251,                                    # no age; multiple attempts (2)
-    78848, 79283, 79085,                      # not English proficient (3)
-    78360, 78371, 78393, 78573, 78921, 79106  # outlier RT trials > 5% (6)
-  )] -> demo_temp2
+  ]
 
-  # Safety checks: stop if new data adds cases the list above doesn't cover
-  kept <- unique(demo_temp2$sona_id)
+
+  kept <- unique(demo$sona_id)
+
+
+  # Stop if new data adds cases the exclusion list doesn't cover
   stopifnot(
+
     "Retained subject has multiple sessions" =
-      raw_data[sona_id %in% kept & trial_index == 0, .N, by = sona_id][, all(N == 1)],
-    "Retained subject does not have 295 rows" =
-      raw_data[sona_id %in% kept, .N, by = sona_id][, all(N == 295)],
+      data$raw[sona_id %in% kept & trial_index == 0,
+               .N, by = sona_id][, all(N == 1)],
+
+    "Retained subject has an incomplete or extra session" =
+      data$raw[sona_id %in% kept,
+               .N, by = sona_id][, all(N == n_rows_expected)],
+
     "Retained subject saw the English-fluency exit screen" =
-      !any(grepl("fluent in English", raw_data[sona_id %in% kept, stimulus]))
+      !any(grepl("fluent in English",
+                 data$raw[sona_id %in% kept, stimulus]))
+
   )
 
-  # Check for duplicates
-  # table(table(raw_data$sona_id) == 295)
-  # View(raw_data[, .N, by = sona_id])
 
-  # Reshape to wide format (one row per subject) and coerce age to numeric
-  widen_responses(DT = demo_temp2) -> demo_temp3
-  demo_temp3[, age := as.numeric(age)]
+  wide <- widen_responses(DT = demo)           # One row per subject
 
-  # Save the retained subject IDs for use in downstream filtering
-  demo_temp3[, sona_id] -> subject_ids
+  wide[, age := as.numeric(age)]
 
-  # Summarize demographics
-  gtsummary::tbl_summary(data = demo_temp3, include = "gender") -> gender_table
-  gtsummary::tbl_summary(data = demo_temp3, include = "race")   -> race_table
-  describe(x = demo_temp3$age, fast = TRUE)                     -> age_stats
 
-  results <- list(
-    "demographics"     = demo_temp3,
-    "subjects to keep" = subject_ids,
-    "gender"           = gender_table,
-    "race"             = race_table,
-    "age"              = age_stats
+  list(
+
+    table  = wide,
+    ids    = wide$sona_id,
+    gender = tbl_summary(data = wide, include = "gender"),
+    race   = tbl_summary(data = wide, include = "race"),
+    age    = describe(x = wide$age, fast = TRUE)
+
   )
 
-}) -> demo_data
+})
 
 
-# Visual Search Analysis ------------------------------------------------------
+# 4. Visual Search -------------------------------------------------------------
 
-local({
+data$vs <- local({
 
-  # Build visual search dataset for retained subjects only
-  raw_data[
-    sona_id %in% demo_data$`subjects to keep` & phase == "visual_search_trial",
-    list(sona_id, phase, block, distractor_type, target_present,
+  trials <- data$raw[
+
+    sona_id %in% data$demo$ids & phase == "visual_search_trial",
+    list(sona_id, block, distractor_type, target_present,
          stimuli_list, rt, response, correct)
-  ][,
-    `:=`(
+
+  ][
+
+    , `:=`(
+
       rt       = as.numeric(rt),
       block    = block + 1,
       set_size = lengths(strsplit(gsub('\\[|\\]|"', "", stimuli_list), ",")),
       response = tolower(response)
+
     )
-  ][, stimuli_list := NULL] -> vs_data
 
-  # Flag outlier trials: those falling outside ±2 SDs of the grand mean RT
-  grand_mean_rt <- mean(vs_data$rt, na.rm = TRUE)
-  grand_sd_rt   <- sd(vs_data$rt,   na.rm = TRUE)
+  ][, stimuli_list := NULL]
 
-  vs_data[,
-          is_outlier := rt > 5000 |
-            rt < grand_mean_rt - (2 * grand_sd_rt)
+
+  ## Outlier trials: > 5000 ms or < grand mean - 2 SD ##
+
+  grand <- list(m = mean(trials$rt, na.rm = TRUE),
+                sd = sd(trials$rt, na.rm = TRUE))
+
+  trials[, is_outlier := rt > 5000 | rt < grand$m - 2 * grand$sd]
+
+
+  outliers <- trials[
+
+    , list(
+
+      n_trials      = .N,
+      n_outliers    = sum(is_outlier, na.rm = TRUE),
+      prop_outliers = mean(is_outlier, na.rm = TRUE)
+
+    ),
+    by = sona_id
+
   ]
 
-  # Remove outlier trials before collapsing so avg_rt reflects clean trials only
-  vs_data[is_outlier == FALSE] -> vs_data_clean
 
-  # Collapse across blocks: compute mean RT and proportion correct per condition
-  vs_data_clean[,
-                list(
-                  prop_correct = mean(correct),
-                  avg_rt       = mean(rt)
-                ),
-                by = list(sona_id, distractor_type, target_present, set_size, correct)
-  ] -> vs_collapsed
+  if (nrow(outliers[prop_outliers > 0.05])) {
 
-  collapsed_Gmean <- mean(vs_collapsed$avg_rt)
-  collapsed_Gsd   <- sd(vs_collapsed$avg_rt)
+    warning("Retained subjects with > 5% outlier trials: ",
+            toString(outliers[prop_outliers > 0.05, sona_id]))
 
-  # Summarize outlier rate per participant; flag anyone exceeding 5%
-  vs_data[,
-          list(
-            n_trials      = .N,
-            n_outliers    = sum(is_outlier, na.rm = TRUE),
-            prop_outliers = mean(is_outlier, na.rm = TRUE)
-          ),
-          by = sona_id
-  ] -> outlier_summary
+  }
 
-  # Summarize accuracy: flag conditions where p(correct) < .80
-  vs_collapsed[,
-               list(
-                 total_conditions  = .N,
-                 n_low_accuracy    = sum(prop_correct < 0.80),
-                 prop_low_accuracy = mean(prop_correct < 0.80)
-               ),
-               by = sona_id
-  ] -> vs_accuracy
 
-  results <- list(
-    "vs_data"          = vs_data,
-    "vs_collapsed"     = vs_collapsed,
-    "vs_accuracy"      = vs_accuracy,
-    "outlier_summary"  = outlier_summary,
-    "outlier_subjects" = outlier_summary[prop_outliers > 0.05],
-    "grand_stats"      = list(gMean = grand_mean_rt, gSD = grand_sd_rt),
-    "collapsed_stats"  = list(gMean = collapsed_Gmean, gSD = collapsed_Gsd)
+  clean    <- trials[is_outlier == FALSE]      # Clean trials only
+  cell_by  <- c("sona_id", "distractor_type", "target_present", "set_size")
+
+
+  ## Collapse across blocks: one row per subject x condition ##
+
+  # Accuracy uses all clean trials; RT uses correct clean trials
+  acc_cells <- clean[, list(prop_correct = mean(correct)), by = cell_by]
+
+  rt_cells  <- clean[correct == TRUE, list(avg_rt = mean(rt)), by = cell_by]
+
+
+  low_acc <- acc_cells[
+
+    , list(
+
+      n_cells  = .N,
+      n_low    = sum(prop_correct < 0.80),
+      prop_low = mean(prop_correct < 0.80)
+
+    ),
+    by = sona_id
+
+  ]
+
+
+  list(
+
+    trials    = trials,
+    outliers  = outliers,
+    acc_cells = acc_cells,
+    rt_cells  = rt_cells,
+    low_acc   = low_acc,
+    grand     = grand,
+    rt_stats  = list(m = mean(rt_cells$avg_rt), sd = sd(rt_cells$avg_rt))
+
   )
 
-}) -> vs_data
+})
 
 
-# Step 1: Characterize the RT Pattern ----------------------------------------
+# 5. Survey Scores -------------------------------------------------------------
 
-# Sum-to-zero contrasts so Type III main effects are averaged over the other
-# factors (not evaluated at reference levels). Stays on through the
-# Mindfulness x RT test; reset at the end of that section.
-options(contrasts = c("contr.sum", "contr.poly"))
+data$scores <- local({
 
-# Prepare modelling data: correct trials only, factors set appropriately.
-# set_size centered (3/6/9 -> -3/0/3) so distractor and target main effects
-# are evaluated at the average set size rather than at set size = 0.
-vs_data$vs_collapsed[correct == TRUE][
-  , `:=`(
-    set_size_num    = as.numeric(set_size),
-    set_size_c      = as.numeric(set_size) - 6,
-    distractor_type = factor(distractor_type),
-    target_present  = factor(target_present)
+  items <- data$raw[
+
+    sona_id %in% data$demo$ids & phase %like% "survey",
+    list(sona_id, phase, response)
+
+  ]
+
+
+  wide <- widen_responses(DT = items, prefix = "phase")
+
+  wide <- recode_cols(dt = wide, cols = 2:65, class = "numeric")
+
+
+  long <- melt(
+
+    wide,
+    id.vars       = "sona_id",
+    variable.name = "measure",
+    value.name    = "item_score"
+
   )
-] -> rt_model_data
-
-# Mixed model: all three within-subject factors with random intercepts by subject
-rt_lmer <- lmer(
-  avg_rt ~ set_size_c * distractor_type * target_present + (1 | sona_id),
-  data = rt_model_data
-)
-
-# Overall fixed effects: which factors drive RT?
-car::Anova(rt_lmer, type = 3)
-
-# Follow-up: RT slope across set size within each distractor x target cell.
-emtrends(
-  rt_lmer,
-  specs = ~ target_present | distractor_type,
-  var   = "set_size_c"
-) -> rt_trends
-
-summary(rt_trends)
 
 
-# Step 2: Per-subject Search Efficiency for Survey Correlations --------------
+  long[, item_score := item_score + 1]         # Index 0 -> 1
 
-# Compute each person's RT slope across set sizes within each distractor_type.
-# This gives one efficiency score per person per distractor condition,
-# suitable for the faceted mindfulness plot below.
-rt_model_data[
-  ,
-  .(slope = coef(lm(avg_rt ~ set_size_num))["set_size_num"]),
-  by = .(sona_id, distractor_type)
-] -> rt_slopes
+  # Score so higher = more of the construct (first on-screen label = 1)
+  long[, item_scored := fcase(
+
+    measure %like% "mindfulness", item_score,      # 6 = Almost never (MAAS)
+    measure %like% "satisfaction", 8 - item_score, # 7 = Strongly agree
+    measure %in% consc_reverse, item_score,        # Reverse-keyed: as is
+    measure %like% "big5", 6 - item_score          # 5 = Agree strongly
+
+  )]
 
 
-# Visual Search Plots ---------------------------------------------------------
+  # Mindfulness:       mean of items (1-6); higher = more mindful
+  # Life satisfaction: sum of items (5-35); 20-24 = neutral
+  # Conscientiousness: mean of items (1-5); higher = more conscientious
+  scores <- rbindlist(list(
 
-local({
+    long[measure %like% "mindfulness",
+         list(scale = "mindfulness",
+              score = mean(item_scored, na.rm = TRUE)), by = sona_id],
 
-  distractor_labels <- as_labeller(c(
-    `blue_triangle` = "Blue Triangle",
-    `red_blue_mix`  = "Red/Blue Mix",
-    `red_circle`    = "Red Circle"
+    long[measure %like% "satisfaction",
+         list(scale = "satisfaction",
+              score = sum(item_scored, na.rm = TRUE)), by = sona_id],
+
+    long[measure %in% consc_items,
+         list(scale = "conscientiousness",
+              score = mean(item_scored, na.rm = TRUE)), by = sona_id]
+
   ))
 
-  # Accuracy plot
-  ggplot(
-    data    = vs_data$vs_collapsed,
-    mapping = aes(
-      x     = set_size,
-      y     = prop_correct,
-      color = factor(target_present, labels = c("Absent", "Present"))
-    )
-  ) +
-    stat_summary(
-      fun.data = mean_cl_boot,
-      position = position_dodge(width = 0.5)
-    ) +
-    facet_wrap(~distractor_type, labeller = distractor_labels) +
-    scale_x_continuous(breaks = c(3, 6, 9)) +
-    scale_y_continuous(limits = c(0, 1)) +
-    labs(
-      title    = "Accuracy by Conditions:",
-      subtitle = "No Set Size, Distractor, or Conjunction Effects",
-      y        = "Proportion Correct",
-      x        = "Set Size"
-    ) +
-    guides(color = guide_legend(title = "Target")) +
-    theme_pcj(
-      legend.position      = c(0.98, 1.1),
-      legend.key.spacing.x = unit(.5, "in"),
-      default_caption      = FALSE
-    ) -> acc_plot
 
-  # RT plot
-  ggplot(
-    data    = vs_data$vs_collapsed[correct == TRUE],
-    mapping = aes(
-      x     = set_size,
-      y     = avg_rt,
-      color = factor(target_present, labels = c("Absent", "Present"))
-    )
-  ) +
-    stat_summary(
-      fun.data  = mean_cl_boot,
-      position  = position_dodge(width = 0.75),
-      size      = .75,
-      linewidth = .75
-    ) +
-    facet_wrap(~distractor_type, labeller = distractor_labels) +
-    scale_x_continuous(breaks = c(3, 6, 9)) +
-    coord_cartesian(ylim = c(0, vs_data$collapsed_stats$gMean +
-                               2 * vs_data$collapsed_stats$gSD)) +
-    labs(
-      title    = "Slow Correct Decisions when Target Absent:",
-      subtitle = "Set Size and Conjunction Effects",
-      y        = "Average RT (ms)",
-      x        = "Set Size"
-    ) +
-    guides(color = guide_legend(title = "Target")) +
-    theme_pcj(
-      legend.position      = c(0.98, 1.1),
-      legend.key.spacing.x = unit(.5, "in"),
-      default_caption      = FALSE
-    ) -> rt_plot
+  dcast(scores, sona_id ~ scale, value.var = "score")
 
-  plot_results <- list(
-    "vs_accuracy" = acc_plot,
-    "vs_rt"       = rt_plot
-  )
-
-}) -> vs_data$vs_plots
-
-plot_saver(
-  plots   = vs_data$vs_plots,
-  dir     = "./plots",
-  names   = names(vs_data$vs_plots),
-  dpi     = 600,
-  preview = FALSE,
-  width   = 15.5,
-  height  = 9
-)
+})
 
 
-# Mixed Effects Models (Exploratory) ------------------------------------------
-# NOTE: Not currently run. Kept for reference.
+# 6. Combined Data -------------------------------------------------------------
 
-# glmer(
-#   rt ~ distractor_type * target_present * set_size +
-#     (1 | sona_id),
-#   data   = vs_data$vs_data[correct == TRUE],
-#   family = Gamma(link = "log")
-# ) -> fit
-#
-# summary(fit)
-# Anova(fit, type = 3)
-#
-# # Main effect of set_size
-# emmeans(fit, pairwise ~ set_size, adjust = "bonferroni", type = "response")
-#
-# # Interaction: set_size within each level of target_present
-# emmeans(fit, pairwise ~ set_size | target_present, adjust = "bonferroni", type = "response")
-#
-# glmer(
-#   rt ~ distractor_type * target_present * set_size +
-#     (distractor_type + target_present + set_size | sona_id),
-#   data   = vs_data$vs_data[correct == TRUE],
-#   family = Gamma(link = "log")
-# ) -> mid_fit
-#
-# summary(mid_fit)
-# tbl_regression(mid_fit, exponentiate = TRUE)
+# One row per subject x distractor x target (RT averaged over set size)
+data$cond <- merge(
 
+  data$vs$rt_cells[
 
-# Survey Analysis -------------------------------------------------------------
+    , list(avg_rt = mean(avg_rt, na.rm = TRUE)),
+    by = list(sona_id, distractor_type, target_present)
 
-local({
-
-  # Extract survey responses for retained subjects; reshape to wide format
-  raw_data[
-    sona_id %in% demo_data$`subjects to keep` & phase %like% "survey",
-    list(sona_id, phase, response)
-  ] -> survey_temp
-
-  widen_responses(DT = survey_temp, prefix = "phase") -> survey_temp2
-
-  # Recode all item columns to numeric and shift from 0–4 to 1–5 scale
-  recode_cols(dt = survey_temp2, cols = 2:65, class = "numeric") -> survey_temp3
-
-  melt(
-    data          = survey_temp3,
-    id.vars       = "sona_id",
-    variable.name = "Measure",
-    value.name    = "item_score"
-  ) -> survey_temp4
-
-  survey_temp4[, item_score := item_score + 1]
-
-  # Define Conscientiousness items and which are reverse-coded
-  conscientiousness_items <- c(
-    "big5_survey_Thorough",
-    "big5_survey_Careless",
-    "big5_survey_Reliable",
-    "big5_survey_Disorganzied",
-    "big5_survey_Lazy",
-    "big5_survey_perservere",
-    "big5_survey_Efficient",
-    "big5_survey_plans",
-    "big5_survey_distracted"
-  )
-
-  reverse_items <- c(
-    "big5_survey_Careless",
-    "big5_survey_Disorganzied",
-    "big5_survey_Lazy",
-    "big5_survey_distracted"
-  )
-
-  # Reverse-score negatively-worded items (6 - score on a 1–5 scale)
-  survey_temp4[
-    Measure %in% reverse_items,
-    item_score_recoded := 6 - item_score
-  ][
-    !(Measure %in% reverse_items),
-    item_score_recoded := item_score
-  ]
-
-  # Compute subscale scores:
-  #   Mindfulness:        mean of items; higher scores = lower negative affect
-  #   Life Satisfaction:  sum of items; 5-35; average 20-24 (neutral)
-  #   Conscientiousness:  mean of items, negatively-worded items reverse-scored
-  survey_temp4[
-    Measure %like% "mindfulness",
-    score := mean(item_score, na.rm = TRUE),
-    by = "sona_id"
-  ][
-    Measure %like% "satisfaction",
-    score := sum(item_score, na.rm = TRUE),
-    by = "sona_id"
-  ][
-    Measure %in% conscientiousness_items,
-    score := mean(item_score_recoded, na.rm = TRUE),
-    by = "sona_id"
-  ] -> survey_temp5
-
-  # Extract one score per person per subscale and combine into a single table
-  list(
-    survey_temp5[Measure %like% "mindfulness",
-                 .(Measure = "mindfulness",       score = unique(score)), by = "sona_id"],
-    survey_temp5[Measure %like% "satisfaction",
-                 .(Measure = "satisfaction",      score = unique(score)), by = "sona_id"],
-    survey_temp5[Measure %in% conscientiousness_items,
-                 .(Measure = "conscientiousness", score = unique(score)), by = "sona_id"]
-  ) |> rbindlist() -> survey_scores
-
-  # Reshape to wide format: one row per subject with a column per subscale
-  dcast(
-    data      = survey_scores,
-    formula   = sona_id ~ Measure,
-    value.var = "score"
-  )
-
-}) -> survey_data
-
-
-# Combined Dataset ------------------------------------------------------------
-
-# Merge visual search and survey data on subject ID
-merge(
-  x     = vs_data$vs_collapsed,
-  y     = survey_data,
+  ],
+  data$scores,
   by    = "sona_id",
   all.x = TRUE
-) -> vs_data$full_data
 
-# Collapse to one row per subject per distractor_type x target_present.
-# Filter to correct trials only (matching rt_model_data) before averaging,
-# then average over set sizes so each subject contributes one RT per condition.
-vs_data$full_data[
-  correct == TRUE,
-  .(
-    avg_rt            = mean(avg_rt,            na.rm = TRUE),
-    mindfulness       = mean(mindfulness,       na.rm = TRUE),
-    satisfaction      = mean(satisfaction,      na.rm = TRUE),
-    conscientiousness = mean(conscientiousness, na.rm = TRUE)
-  ),
-  by = .(sona_id, distractor_type, target_present)
-] -> vs_data$full_data_subj
-
-# One row per subject for subscale intercorrelation plots (no RT or condition)
-vs_data$full_data_subj[
-  ,
-  .(
-    mindfulness       = mean(mindfulness,       na.rm = TRUE),
-    satisfaction      = mean(satisfaction,      na.rm = TRUE),
-    conscientiousness = mean(conscientiousness, na.rm = TRUE)
-  ),
-  by = sona_id
-] -> vs_data$subj_scores
+)
 
 
-# Survey × RT Plots -----------------------------------------------------------
+# Per-subject search efficiency: RT slope across set size (ms/item)
+data$slopes <- merge(
 
-# Merge per-subject slopes with mindfulness and conscientiousness scores.
-# Both are subject-level (one row per subject in survey_data), so the join
-# produces one row per subject in rt_slopes — no duplication.
-rt_slopes[
-  survey_data[, .(sona_id, mindfulness, conscientiousness)],
-  on = "sona_id"
-] -> rt_slopes
+  data$vs$rt_cells[
 
-local({
+    , list(slope = coef(lm(avg_rt ~ set_size))[["set_size"]]),
+    by = list(sona_id, distractor_type)
 
-  # Helper: format a cor.test result as a ggtext-compatible subtitle string
-  format_cor_subtitle <- function(ct) {
-    paste0(
-      "*r*(", ct$parameter, ") ", format_r(ct$estimate),
-      ", *p* ", format_p(ct$p.value),
-      ", 95% CI [", format_r(ct$conf.int[1]),
-      ", ", format_r(ct$conf.int[2]), "]"
-    )
-  }
+  ],
+  data$scores[, list(sona_id, mindfulness, conscientiousness)],
+  by    = "sona_id",
+  all.x = TRUE
 
-  # Helper: compute per-panel correlation labels for a survey ~ RT plot.
-  # Uses full_data_subj (one row per subject per condition) so each subject
-  # contributes equally. Returns one collapsed label per distractor_type panel.
-  make_survey_cor_labels <- function(data, x_var, x_pos = -Inf, y_pos = Inf) {
-    as.data.table(data)[
-      !is.na(get(x_var)),
-      {
-        ct <- cor.test(get(x_var), avg_rt)
-        .(
-          target_present = target_present[1],
-          label = paste0(
-            ifelse(target_present[1], "Present", "Absent"),
-            ": *r*(", ct$parameter, ") ", format_r(ct$estimate),
-            ", *p* ", format_p(ct$p.value)
-          )
-        )
-      },
-      by = .(distractor_type, target_present)
-    ][
-      order(distractor_type, target_present)
-    ][
-      ,
-      .(
-        label = paste(label, collapse = "<br>"),
-        x_pos = x_pos,
-        y_pos = y_pos
-      ),
-      by = distractor_type
-    ]
-  }
+)
 
-  # Helper: build a faceted scatterplot of avg RT by a given survey score.
-  # Faceted by distractor type; color indicates target presence.
-  make_survey_rt_plot <- function(data, x_var, x_label) {
-    ggplot(
-      data    = data[!is.na(get(x_var))],
-      mapping = aes(
-        x     = get(x_var),
+
+# 7. Models --------------------------------------------------------------------
+
+models <- list()
+
+
+# Sum-to-zero contrasts so Type III main effects average over other factors
+sum_contrasts <- list(distractor_type = "contr.sum", target_present = "contr.sum")
+
+
+## RT pattern ##
+
+# set_size centered (3/6/9 -> -3/0/3): main effects at the average set size
+rt_model_data <- copy(data$vs$rt_cells)[, `:=`(
+
+  set_size_c      = set_size - 6,
+  distractor_type = factor(distractor_type),
+  target_present  = factor(target_present)
+
+)]
+
+
+models$rt <- lmer(
+
+  avg_rt ~ set_size_c * distractor_type * target_present + (1 | sona_id),
+  data      = rt_model_data,
+  contrasts = sum_contrasts
+
+)
+
+
+car::Anova(models$rt, type = 3)
+
+
+# Search slope (ms/item) within each distractor x target cell
+models$rt_trends <- emtrends(
+
+  models$rt,
+  specs = ~ target_present | distractor_type,
+  var   = "set_size_c"
+
+)
+
+
+summary(models$rt_trends)
+
+
+## Mindfulness x RT ##
+
+# Mindfulness did not predict visual search RT, chi2(1) = 0.69, p = .406, nor
+# did it interact with distractor type, chi2(2) = 3.38, p = .185, target
+# presence, chi2(1) = 2.59, p = .108, or both, chi2(2) = 2.60, p = .273.
+
+# Grand-mean centered on subjects, not rows
+mind_mean <- mean(data$scores$mindfulness, na.rm = TRUE)
+
+mind_model_data <- data$cond[!is.na(mindfulness)][, `:=`(
+
+  mindfulness_c   = mindfulness - mind_mean,
+  distractor_type = factor(distractor_type),
+  target_present  = factor(target_present, labels = target_labs)
+
+)]
+
+
+models$mind <- lmer(
+
+  avg_rt ~ mindfulness_c * distractor_type * target_present + (1 | sona_id),
+  data      = mind_model_data,
+  contrasts = sum_contrasts
+
+)
+
+
+car::Anova(models$mind, type = 3)
+
+
+# Mindfulness slope (ms per scale point) within each condition
+models$mind_trends <- emtrends(
+
+  models$mind,
+  specs = ~ target_present | distractor_type,
+  var   = "mindfulness_c"
+
+)
+
+
+summary(models$mind_trends, infer = TRUE)
+
+
+# Present vs. Absent slopes within each distractor type
+pairs(models$mind_trends, by = "distractor_type") |>
+
+  summary(by = NULL, adjust = "bonferroni")
+
+
+# 8. Plots ---------------------------------------------------------------------
+
+plots <- list()
+
+
+## Plot helpers ##
+
+# RT ~ survey score, faceted by distractor; r per target condition
+make_survey_rt_plot <- function(x_var, x_label, title, subtitle) {
+
+  d <- data$cond[!is.na(get(x_var))]
+
+
+  labels <- d[
+
+    , list(label = paste0(
+
+      fifelse(target_present, "Present", "Absent"), ": ",
+      cor_label(cor.test(get(x_var), avg_rt))
+
+    )),
+    by = list(distractor_type, target_present)
+
+  ][
+
+    order(distractor_type, target_present),
+    list(label = paste(label, collapse = "<br>")),
+    by = distractor_type
+
+  ]
+
+
+  ggplot(
+
+    d,
+    aes(x     = .data[[x_var]],
         y     = avg_rt,
-        color = factor(target_present, labels = c("Absent", "Present"))
-      )
-    ) +
-      geom_point(alpha = 0.5, size = 2) +
-      geom_smooth(method = "lm", se = TRUE) +
-      facet_wrap(
-        ~distractor_type,
-        labeller = as_labeller(c(
-          `blue_triangle` = "Blue Triangle",
-          `red_blue_mix`  = "Red/Blue Mix",
-          `red_circle`    = "Red Circle"
-        ))
-      ) +
-      expand_limits(y = 0) +
-      labs(
-        title    = paste("Response Time by", x_label),
-        subtitle = paste("Relationship between", x_label, "and visual search RT"),
-        y        = "Average RT (ms)",
-        x        = x_label
-      ) +
-      guides(color = guide_legend(title = "Target")) +
-      theme_pcj(
-        legend.position      = c(0.98, 1.1),
-        legend.key.spacing.x = unit(.5, "in"),
-        default_caption      = FALSE
-      )
-  }
+        color = factor(target_present, labels = target_labs))
 
-  # Mindfulness: per-panel correlation labels (one r per distractor_type facet)
-  mindfulness_slope_labels <- as.data.table(rt_slopes)[
-    !is.na(mindfulness),
-    {
-      ct <- cor.test(mindfulness, slope)
-      .(label = paste0(
-        "*r*(", ct$parameter, ") ", format_r(ct$estimate),
-        ", *p* ", format_p(ct$p.value)
-      ))
-    },
+  ) +
+
+    geom_point(alpha = 0.5, size = 2) +
+
+    geom_smooth(method = "lm", formula = y ~ x, se = TRUE) +
+
+    cor_text_layer(labels) +
+
+    facet_wrap(~ distractor_type, labeller = distractor_labs) +
+
+    expand_limits(y = 0) +                     # Full data; axis starts at 0
+
+    labs(title = title, subtitle = subtitle,
+         x = x_label, y = "Average RT (ms)") +
+
+    guides(color = guide_legend(title = "Target")) +
+
+    theme_facets
+
+}
+
+
+# Search slope ~ survey score, faceted by distractor
+make_slope_plot <- function(x_var, x_label, title) {
+
+  d <- data$slopes[!is.na(get(x_var))]
+
+
+  labels <- d[
+
+    , list(label = cor_label(cor.test(get(x_var), slope))),
     by = distractor_type
+
   ]
 
-  ggplot(
-    data    = rt_slopes[!is.na(mindfulness)],
-    mapping = aes(x = mindfulness, y = slope)
-  ) +
+
+  ggplot(d, aes(x = .data[[x_var]], y = slope)) +
+
     geom_point(alpha = 0.5, size = 2) +
-    geom_smooth(method = "lm", se = TRUE) +
-    ggtext::geom_richtext(
-      data        = mindfulness_slope_labels,
-      mapping     = aes(x = -Inf, y = Inf, label = label),
-      hjust       = -0.05,
-      vjust       = 1.1,
-      size        = 3.5,
-      fill        = "white",
-      label.color = NA,
-      inherit.aes = FALSE
-    ) +
-    facet_wrap(~distractor_type, labeller = as_labeller(c(
-      `blue_triangle` = "Blue Triangle",
-      `red_blue_mix`  = "Red/Blue Mix",
-      `red_circle`    = "Red Circle"
-    ))) +
-    labs(
-      title    = "Mindfulness Unrelated to Search Efficiency",
-      subtitle = NULL,                            # removed: was a single pooled r
-      y        = "RT Slope (ms/item)",
-      x        = "Mindfulness Score"
-    ) +
-    theme_pcj(default_caption = FALSE) -> mindfulness_slope_plot
 
-  # Conscientiousness: per-panel correlation labels (one r per distractor_type facet)
-  conscientiousness_slope_labels <- as.data.table(rt_slopes)[
-    !is.na(conscientiousness),
-    {
-      ct <- cor.test(conscientiousness, slope)
-      .(label = paste0(
-        "*r*(", ct$parameter, ") ", format_r(ct$estimate),
-        ", *p* ", format_p(ct$p.value)
-      ))
-    },
-    by = distractor_type
-  ]
+    geom_smooth(method = "lm", formula = y ~ x, se = TRUE) +
 
-  ggplot(
-    data    = rt_slopes[!is.na(conscientiousness)],
-    mapping = aes(x = conscientiousness, y = slope)
-  ) +
-    geom_point(alpha = 0.5, size = 2) +
-    geom_smooth(method = "lm", se = TRUE) +
-    ggtext::geom_richtext(
-      data        = conscientiousness_slope_labels,
-      mapping     = aes(x = -Inf, y = Inf, label = label),
-      hjust       = -0.05,
-      vjust       = 1.1,
-      size        = 3.5,
-      fill        = "white",
-      label.color = NA,
-      inherit.aes = FALSE
-    ) +
-    facet_wrap(~distractor_type, labeller = as_labeller(c(
-      `blue_triangle` = "Blue Triangle",
-      `red_blue_mix`  = "Red/Blue Mix",
-      `red_circle`    = "Red Circle"
-    ))) +
-    labs(
-      title    = "Conscientiousness and Search Efficiency",
-      subtitle = NULL,
-      y        = "RT Slope (ms/item)",
-      x        = "Conscientiousness Score"
-    ) +
-    theme_pcj(default_caption = FALSE) -> conscientiousness_slope_plot
+    cor_text_layer(labels) +
 
-  # Life satisfaction ~ RT
-  satisfaction_cor_labels <- make_survey_cor_labels(
-    data  = vs_data$full_data_subj,
-    x_var = "satisfaction"
-  )
+    facet_wrap(~ distractor_type, labeller = distractor_labs) +
 
-  satisfaction_rt_plot <- make_survey_rt_plot(
-    vs_data$full_data_subj, "satisfaction", "Life Satisfaction Score"
-  ) +
-    ggtext::geom_richtext(
-      data    = satisfaction_cor_labels,
-      mapping = aes(x = x_pos, y = y_pos, label = label),
-      hjust       = -0.05,
-      vjust       = 1.1,
-      size        = 3.5,
-      fill        = "white",
-      label.color = NA,
-      inherit.aes = FALSE
-    ) +
-    labs(
-      title    = "Life Satisfaction and Visual Search RT:",
-      subtitle = "Satisfied People are Faster When Targets are Present"
-    )
+    labs(title = title, x = x_label, y = "RT Slope (ms/item)") +
 
-  # Conscientiousness ~ RT
-  conscientiousness_cor_labels <- make_survey_cor_labels(
-    data  = vs_data$full_data_subj,
-    x_var = "conscientiousness"
-  )
+    theme_pcj(default_caption = FALSE)
 
-  conscientiousness_rt_plot <- make_survey_rt_plot(
-    vs_data$full_data_subj, "conscientiousness", "Conscientiousness Score"
-  ) +
-    ggtext::geom_richtext(
-      data    = conscientiousness_cor_labels,
-      mapping = aes(x = x_pos, y = y_pos, label = label),
-      hjust       = -0.05,
-      vjust       = 1.1,
-      size        = 3.5,
-      fill        = "white",
-      label.color = NA,
-      inherit.aes = FALSE
-    ) +
-    labs(
-      title    = "Conscientiousness and Visual Search RT:",
-      subtitle = "Conscientious People Slower When Targets are Absent"
-    )
+}
 
-  # Relationships between survey subscales — one row per subject, no RT involved
-  ct_mind_sat <- cor.test(vs_data$subj_scores$mindfulness, vs_data$subj_scores$satisfaction)
-  ct_mind_con <- cor.test(vs_data$subj_scores$mindfulness, vs_data$subj_scores$conscientiousness)
-  ct_sat_con  <- cor.test(vs_data$subj_scores$satisfaction, vs_data$subj_scores$conscientiousness)
 
-  ggplot(vs_data$subj_scores, aes(x = mindfulness, y = satisfaction)) +
+# Survey subscale intercorrelation (one point per subject)
+make_scale_plot <- function(x_var, y_var, x_label, y_label) {
+
+  ct <- cor.test(data$scores[[x_var]], data$scores[[y_var]])
+
+
+  ggplot(data$scores, aes(x = .data[[x_var]], y = .data[[y_var]])) +
+
     geom_point() +
-    geom_smooth(method = "lm", se = TRUE) +
+
+    geom_smooth(method = "lm", formula = y ~ x, se = TRUE) +
+
     labs(
-      title    = "Relationship Between Mindfulness and Life Satisfaction",
-      subtitle = format_cor_subtitle(ct_mind_sat),
-      x        = "Mindfulness Score",
-      y        = "Life Satisfaction Score"
+
+      title    = paste("Relationship Between", x_label, "and", y_label),
+      subtitle = cor_subtitle(ct),
+      x        = paste(x_label, "Score"),
+      y        = paste(y_label, "Score")
+
     ) +
+
     theme_pcj(default_caption = FALSE,
-              plot.title = ggplot2::element_text(size = ggplot2::rel(2.2))) +
-    theme(plot.subtitle = ggtext::element_markdown()) -> mind_sat_plot
+              plot.title = element_text(size = rel(2.2))) +
 
-  ggplot(vs_data$subj_scores, aes(x = mindfulness, y = conscientiousness)) +
-    geom_point() +
-    geom_smooth(method = "lm", se = TRUE) +
-    labs(
-      title    = "Relationship Between Mindfulness and Conscientiousness",
-      subtitle = format_cor_subtitle(ct_mind_con),
-      x        = "Mindfulness Score",
-      y        = "Conscientiousness Score"
-    ) +
-    theme_pcj(default_caption = FALSE,
-              plot.title = ggplot2::element_text(size = ggplot2::rel(2.2))) +
-    theme(plot.subtitle = ggtext::element_markdown()) -> mind_con_plot
+    theme(plot.subtitle = ggtext::element_markdown())
 
-  ggplot(vs_data$subj_scores, aes(x = satisfaction, y = conscientiousness)) +
-    geom_point() +
-    geom_smooth(method = "lm", se = TRUE) +
-    labs(
-      title    = "Relationship Between Life Satisfaction and Conscientiousness",
-      subtitle = format_cor_subtitle(ct_sat_con),
-      x        = "Life Satisfaction Score",
-      y        = "Conscientiousness Score"
-    ) +
-    theme_pcj(default_caption = FALSE,
-              plot.title = ggplot2::element_text(size = ggplot2::rel(2.2))) +
-    theme(plot.subtitle = ggtext::element_markdown()) -> sat_con_plot
+}
 
-# Mindfulness ~ RT
-#
-# Mindfulness did not predict visual search RT, χ²(1) = 0.75, p = .387, nor did it
-# interact with distractor type, χ²(2) = 3.12, p = .211, target presence,
-# χ²(1) = 2.79, p = .095, or their combination, χ²(2) = 3.17, p = .205.
-  mindfulness_cor_labels <- make_survey_cor_labels(
-    data  = vs_data$full_data_subj,
-    x_var = "mindfulness"
-  )
 
-  mindfulness_rt_plot <- make_survey_rt_plot(
-    vs_data$full_data_subj, "mindfulness", "Mindfulness Score"
+## Visual search ##
+
+plots$vs_accuracy <- ggplot(
+
+  data$vs$acc_cells,
+  aes(x     = set_size,
+      y     = prop_correct,
+      color = factor(target_present, labels = target_labs))
+
+) +
+
+  stat_summary(fun.data = mean_cl_boot,
+               position = position_dodge(width = 0.5)) +
+
+  facet_wrap(~ distractor_type, labeller = distractor_labs) +
+
+  scale_x_continuous(breaks = c(3, 6, 9)) +
+
+  scale_y_continuous(limits = c(0, 1)) +       # Proportions cannot exceed
+
+  labs(
+
+    title    = "Accuracy by Condition",
+    subtitle = "Proportion correct by set size, distractor, and target",
+    x        = "Set Size",
+    y        = "Proportion Correct"
+
   ) +
-    ggtext::geom_richtext(
-      data        = mindfulness_cor_labels,
-      mapping     = aes(x = x_pos, y = y_pos, label = label),
-      hjust       = -0.05,
-      vjust       = 1.1,
-      size        = 3.5,
-      fill        = "white",
-      label.color = NA,
-      inherit.aes = FALSE
-    ) +
-    labs(
-      title    = "Mindfulness and Visual Search RT",
-      subtitle = "No Relationship Between Mindfulness and Search RT"
-    )
 
-  plot_results <- list(
-    "mindfulness_slope"              = mindfulness_slope_plot,
-    "conscientiousness_slope"        = conscientiousness_slope_plot,
-    "satisfaction_rt"                = satisfaction_rt_plot,
-    "conscientiousness_rt"           = conscientiousness_rt_plot,
-    "mindfulness_satisfaction"       = mind_sat_plot,
-    "mindfulness_conscientiousness"  = mind_con_plot,
-    "conscientiousness_satisfaction" = sat_con_plot,
-    "mindfulness_rt"                 = mindfulness_rt_plot
-  )
+  guides(color = guide_legend(title = "Target")) +
 
-}) -> vs_data$survey_rt_plots
+  theme_facets
+
+
+plots$vs_rt <- ggplot(
+
+  data$vs$rt_cells,
+  aes(x     = set_size,
+      y     = avg_rt,
+      color = factor(target_present, labels = target_labs))
+
+) +
+
+  stat_summary(
+
+    fun.data  = mean_cl_boot,
+    position  = position_dodge(width = 0.75),
+    size      = 0.75,
+    linewidth = 0.75
+
+  ) +
+
+  facet_wrap(~ distractor_type, labeller = distractor_labs) +
+
+  scale_x_continuous(breaks = c(3, 6, 9)) +
+
+  coord_cartesian(                             # Zoom only; keeps all data
+
+    ylim = c(0, data$vs$rt_stats$m + 2 * data$vs$rt_stats$sd)
+
+  ) +
+
+  labs(
+
+    title    = "Slow Correct Decisions when Target Absent:",
+    subtitle = "Set Size and Conjunction Effects",
+    x        = "Set Size",
+    y        = "Average RT (ms)"
+
+  ) +
+
+  guides(color = guide_legend(title = "Target")) +
+
+  theme_facets
+
+
+## Search slopes ##
+
+plots$mindfulness_slope <- make_slope_plot(
+
+  "mindfulness", "Mindfulness Score",
+  "Mindfulness Unrelated to Search Efficiency"
+
+)
+
+
+plots$conscientiousness_slope <- make_slope_plot(
+
+  "conscientiousness", "Conscientiousness Score",
+  "Conscientiousness and Search Efficiency"
+
+)
+
+
+## Survey x RT ##
+
+plots$satisfaction_rt <- make_survey_rt_plot(
+
+  "satisfaction", "Life Satisfaction Score",
+  "Life Satisfaction and Visual Search RT:",
+  "Satisfied People are Faster When Targets are Present"
+
+)
+
+
+plots$conscientiousness_rt <- make_survey_rt_plot(
+
+  "conscientiousness", "Conscientiousness Score",
+  "Conscientiousness and Visual Search RT:",
+  "Conscientious People Slower When Targets are Absent"
+
+)
+
+
+plots$mindfulness_rt <- make_survey_rt_plot(
+
+  "mindfulness", "Mindfulness Score",
+  "Mindfulness and Visual Search RT",
+  "No Relationship Between Mindfulness and Search RT"
+
+)
+
+
+## Survey intercorrelations ##
+
+plots$mindfulness_satisfaction <- make_scale_plot(
+
+  "mindfulness", "satisfaction", "Mindfulness", "Life Satisfaction"
+
+)
+
+
+plots$mindfulness_conscientiousness <- make_scale_plot(
+
+  "mindfulness", "conscientiousness", "Mindfulness", "Conscientiousness"
+
+)
+
+
+plots$conscientiousness_satisfaction <- make_scale_plot(
+
+  "satisfaction", "conscientiousness", "Life Satisfaction", "Conscientiousness"
+
+)
+
+
+# 9. Save & Backup -------------------------------------------------------------
 
 plot_saver(
-  plots   = vs_data$survey_rt_plots,
-  dir     = "./plots",
-  names   = names(vs_data$survey_rt_plots),
+
+  plots   = plots,
+  dir     = paths$plots,
+  names   = names(plots),
   dpi     = 600,
   preview = FALSE,
   width   = 15.5,
   height  = 9
+
 )
 
-# Mindfulness × RT Test -------------------------------------------------------
-
-# Model data: one row per subject x distractor x target; factors set;
-# mindfulness grand-mean centered (on subjects, not rows)
-mind_mean <- mean(vs_data$subj_scores$mindfulness, na.rm = TRUE)
-
-vs_data$full_data_subj[!is.na(mindfulness)][
-  , `:=`(
-    mindfulness_c   = mindfulness - mind_mean,
-    distractor_type = factor(distractor_type),
-    target_present  = factor(target_present, labels = c("Absent", "Present"))
-  )
-] -> mind_model_data
-
-# Mixed model: mindfulness x within-subject factors, random intercepts
-mind_rt_lmer <- lmer(
-  avg_rt ~ mindfulness_c * distractor_type * target_present + (1 | sona_id),
-  data = mind_model_data
-)
-
-# Omnibus tests: main effect of mindfulness = overall relationship with RT;
-# interactions = whether that relationship differs by condition
-car::Anova(mind_rt_lmer, type = 3)
-
-# Mindfulness slope (ms per scale point) within each condition
-emtrends(
-  mind_rt_lmer,
-  specs = ~ target_present | distractor_type,
-  var   = "mindfulness_c"
-) -> mind_trends
-
-summary(mind_trends, infer = TRUE)
-
-# Optional: compare the slopes for Present vs. Absent within each distractor type
-pairs(mind_trends, by = "distractor_type", adjust = "bonferroni") |>
-  summary(by = NULL, adjust = "bonferroni")
-
-# Reset contrasts to R defaults
-options(contrasts = c("contr.treatment", "contr.poly"))
-
-
-# Backup to GitHub ------------------------------------------------------------
 
 git_push(push = TRUE)
