@@ -17,12 +17,6 @@
 #   ctrl + alt + b:   run all code until the currently selected line
 
 
-# NOTES ------------------------------------------------------------------------
-
-#   1. Add layer of points to the accuracy plot so you can see the
-#      distribution of the data
-
-
 # 1. Setup ---------------------------------------------------------------------
 
 # One-time install of lab packages (uncomment to update)
@@ -52,18 +46,20 @@ paths <- list(
 
 ## Exclusions ##
 
-# 15 subjects; 22 files (157 -> 142)
+# Hardcoded exclusions: 9 subjects; 16 files
+# RT exclusions are computed from the rule below (section 3)
 exclude_ids <- c(
 
-  75815, 78593, 78958, 79098, 79221,        # Multiple attempts (2,2,2,3,2)
-  79251,                                    # No age; multiple attempts (2)
-  78848, 79283, 79085,                      # Not English proficient (3)
-  78360, 78371, 78393, 78573, 78921, 79106  # Outlier RT trials > 5% (6)
+  75815, 78593, 78958, 79098, 79221,  # Multiple attempts (2,2,2,3,2)
+  79251,                              # No age; multiple attempts (2)
+  78848, 79283, 79085                 # Not English proficient (3)
 
 )
 
 
-n_rows_expected <- 295 # Rows in one complete session
+outlier_cap     <- 5000 # ms; slower trials are outliers (< 200 ms not recorded)
+outlier_limit   <- 0.05 # Exclude subjects with more outlier trials than this
+n_rows_expected <- 295  # Rows in one complete session
 
 
 ## Survey items ##
@@ -173,6 +169,22 @@ data$raw <- import_data(x = data_files$filepath)
 
 # 3. Demographics & Exclusions -------------------------------------------------
 
+## RT exclusions (computed from the rule, not hardcoded) ##
+
+rt_excl <- data$raw[
+
+  !sona_id %in% exclude_ids & phase == "visual_search_trial",
+  list(prop = mean(as.numeric(rt) > outlier_cap, na.rm = TRUE)),
+  by = sona_id
+
+][prop > outlier_limit, sona_id]
+
+
+exclude_ids <- c(exclude_ids, rt_excl)
+
+
+## Demographics for retained subjects ##
+
 data$demo <- local({
 
   demo <- data$raw[
@@ -246,12 +258,9 @@ data$vs <- local({
   ][, stimuli_list := NULL]
 
 
-  ## Outlier trials: > 5000 ms or < grand mean - 2 SD ##
+  ## Outlier trials: RT > 5000 ms (responses < 200 ms not recorded by task) ##
 
-  grand <- list(m = mean(trials$rt, na.rm = TRUE),
-                sd = sd(trials$rt, na.rm = TRUE))
-
-  trials[, is_outlier := rt > 5000 | rt < grand$m - 2 * grand$sd]
+  trials[, is_outlier := rt > outlier_cap]
 
 
   outliers <- trials[
@@ -268,16 +277,16 @@ data$vs <- local({
   ]
 
 
-  if (nrow(outliers[prop_outliers > 0.05])) {
+  if (nrow(outliers[prop_outliers > outlier_limit])) {
 
-    warning("Retained subjects with > 5% outlier trials: ",
-            toString(outliers[prop_outliers > 0.05, sona_id]))
+    warning("Retained subjects over the outlier limit: ",
+            toString(outliers[prop_outliers > outlier_limit, sona_id]))
 
   }
 
 
-  clean    <- trials[is_outlier == FALSE]      # Clean trials only
-  cell_by  <- c("sona_id", "distractor_type", "target_present", "set_size")
+  clean   <- trials[is_outlier == FALSE]       # Clean trials only
+  cell_by <- c("sona_id", "distractor_type", "target_present", "set_size")
 
 
   ## Collapse across blocks: one row per subject x condition ##
@@ -309,7 +318,6 @@ data$vs <- local({
     acc_cells = acc_cells,
     rt_cells  = rt_cells,
     low_acc   = low_acc,
-    grand     = grand,
     rt_stats  = list(m = mean(rt_cells$avg_rt), sd = sd(rt_cells$avg_rt))
 
   )
@@ -345,6 +353,7 @@ data$scores <- local({
 
 
   long[, item_score := item_score + 1]         # Index 0 -> 1
+
 
   # Score so higher = more of the construct (first on-screen label = 1)
   long[, item_scored := fcase(
@@ -422,7 +431,12 @@ models <- list()
 
 
 # Sum-to-zero contrasts so Type III main effects average over other factors
-sum_contrasts <- list(distractor_type = "contr.sum", target_present = "contr.sum")
+sum_contrasts <- list(
+
+  distractor_type = "contr.sum",
+  target_present  = "contr.sum"
+
+)
 
 
 ## RT pattern ##
@@ -464,9 +478,10 @@ summary(models$rt_trends)
 
 ## Mindfulness x RT ##
 
-# Mindfulness did not predict visual search RT, chi2(1) = 0.69, p = .406, nor
-# did it interact with distractor type, chi2(2) = 3.38, p = .185, target
-# presence, chi2(1) = 2.59, p = .108, or both, chi2(2) = 2.60, p = .273.
+# UPDATE from the final run (N = 136):
+# Mindfulness did not predict visual search RT, chi2(1) = __, p = __, nor
+# did it interact with distractor type, chi2(2) = __, p = __, target
+# presence, chi2(1) = __, p = __, or both, chi2(2) = __, p = __.
 
 # Grand-mean centered on subjects, not rows
 mind_mean <- mean(data$scores$mindfulness, na.rm = TRUE)
@@ -643,6 +658,16 @@ plots$vs_accuracy <- ggplot(
 
 ) +
 
+  geom_point(                                  # Subject-level cells
+
+    position = position_jitterdodge(jitter.width  = 0.4,
+                                    jitter.height = 0,
+                                    dodge.width   = 0.5),
+    alpha    = 0.15,
+    size     = 1
+
+  ) +
+
   stat_summary(fun.data = mean_cl_boot,
                position = position_dodge(width = 0.5)) +
 
@@ -650,7 +675,7 @@ plots$vs_accuracy <- ggplot(
 
   scale_x_continuous(breaks = c(3, 6, 9)) +
 
-  scale_y_continuous(limits = c(0, 1)) +       # Proportions cannot exceed
+  scale_y_continuous(limits = c(0, 1)) +       # Proportions: no data lost
 
   labs(
 
@@ -710,10 +735,11 @@ plots$vs_rt <- ggplot(
 
 ## Search slopes ##
 
+# Titles neutral until checked against final r values
 plots$mindfulness_slope <- make_slope_plot(
 
   "mindfulness", "Mindfulness Score",
-  "Mindfulness Unrelated to Search Efficiency"
+  "Mindfulness and Search Efficiency"
 
 )
 
@@ -728,11 +754,12 @@ plots$conscientiousness_slope <- make_slope_plot(
 
 ## Survey x RT ##
 
+# Subtitles neutral until checked against final r values
 plots$satisfaction_rt <- make_survey_rt_plot(
 
   "satisfaction", "Life Satisfaction Score",
-  "Life Satisfaction and Visual Search RT:",
-  "Satisfied People are Faster When Targets are Present"
+  "Life Satisfaction and Visual Search RT",
+  "Correlations by distractor type and target presence"
 
 )
 
@@ -740,8 +767,8 @@ plots$satisfaction_rt <- make_survey_rt_plot(
 plots$conscientiousness_rt <- make_survey_rt_plot(
 
   "conscientiousness", "Conscientiousness Score",
-  "Conscientiousness and Visual Search RT:",
-  "Conscientious People Slower When Targets are Absent"
+  "Conscientiousness and Visual Search RT",
+  "Correlations by distractor type and target presence"
 
 )
 
@@ -750,7 +777,7 @@ plots$mindfulness_rt <- make_survey_rt_plot(
 
   "mindfulness", "Mindfulness Score",
   "Mindfulness and Visual Search RT",
-  "No Relationship Between Mindfulness and Search RT"
+  "Correlations by distractor type and target presence"
 
 )
 
@@ -794,3 +821,30 @@ plot_saver(
 
 
 git_push(push = TRUE)
+
+
+# 10. Report: Numbers for the Manuscript ---------------------------------------
+
+report <- list(
+
+  n_raw         = uniqueN(data$raw$sona_id),
+  n_rt_excluded = length(rt_excl),
+  n_final       = length(data$demo$ids),
+  gender        = data$demo$table[, .N, by = gender],
+  age           = data$demo$age,
+  scale_means   = data$scores[, lapply(.SD, function(x) round(c(
+    M = mean(x, na.rm = TRUE), SD = sd(x, na.rm = TRUE)), 2)),
+    .SDcols = -"sona_id"],
+  cors          = with(data$scores, list(
+
+    mind_sat = cor_subtitle(cor.test(mindfulness,  satisfaction)),
+    mind_con = cor_subtitle(cor.test(mindfulness,  conscientiousness)),
+    sat_con  = cor_subtitle(cor.test(satisfaction, conscientiousness))
+
+  )),
+  low_accuracy  = data$vs$low_acc[prop_low > 0][order(-prop_low)]
+
+)
+
+
+report
