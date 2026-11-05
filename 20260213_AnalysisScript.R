@@ -37,7 +37,7 @@ pcjtools::load_packages(c(
 ))
 
 # Pull latest data files from the Pavlovia GitLab repository
-git_pull(sleep = 5)
+# git_pull(sleep = 5)
 
 # Clear workspace before analysis
 clean_workspace(confirm = FALSE)
