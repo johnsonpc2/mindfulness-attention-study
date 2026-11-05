@@ -60,13 +60,24 @@ local({
     list(sona_id, phase, response)
   ] -> demo_temp
 
-  # Exclude subjects for the following reasons (13 subjects; 19 files):
+  # Exclude subjects for the following reasons (15 subjects; 22 files):
   demo_temp[!sona_id %in% c(
-    75815, 78593, 78958, 79098, # multiple attempts (2, 2, 2, 3)
-    79251,                      # no age; multiple attempts (2)
-    78848, 79283,               # not English proficient (2)
+    75815, 78593, 78958, 79098, 79221,        # multiple attempts (2, 2, 2, 3, 2)
+    79251,                                    # no age; multiple attempts (2)
+    78848, 79283, 79085,                      # not English proficient (3)
     78360, 78371, 78393, 78573, 78921, 79106  # outlier RT trials > 5% (6)
   )] -> demo_temp2
+
+  # Safety checks: stop if new data adds cases the list above doesn't cover
+  kept <- unique(demo_temp2$sona_id)
+  stopifnot(
+    "Retained subject has multiple sessions" =
+      raw_data[sona_id %in% kept & trial_index == 0, .N, by = sona_id][, all(N == 1)],
+    "Retained subject does not have 295 rows" =
+      raw_data[sona_id %in% kept, .N, by = sona_id][, all(N == 295)],
+    "Retained subject saw the English-fluency exit screen" =
+      !any(grepl("fluent in English", raw_data[sona_id %in% kept, stimulus]))
+  )
 
   # Check for duplicates
   # table(table(raw_data$sona_id) == 295)
@@ -172,10 +183,18 @@ local({
 
 # Step 1: Characterize the RT Pattern ----------------------------------------
 
-# Prepare modelling data: correct trials only, factors set appropriately
+# Sum-to-zero contrasts so Type III main effects are averaged over the other
+# factors (not evaluated at reference levels). Stays on through the
+# Mindfulness x RT test; reset at the end of that section.
+options(contrasts = c("contr.sum", "contr.poly"))
+
+# Prepare modelling data: correct trials only, factors set appropriately.
+# set_size centered (3/6/9 -> -3/0/3) so distractor and target main effects
+# are evaluated at the average set size rather than at set size = 0.
 vs_data$vs_collapsed[correct == TRUE][
   , `:=`(
     set_size_num    = as.numeric(set_size),
+    set_size_c      = as.numeric(set_size) - 6,
     distractor_type = factor(distractor_type),
     target_present  = factor(target_present)
   )
@@ -183,19 +202,18 @@ vs_data$vs_collapsed[correct == TRUE][
 
 # Mixed model: all three within-subject factors with random intercepts by subject
 rt_lmer <- lmer(
-  avg_rt ~ set_size_num * distractor_type * target_present + (1 | sona_id),
+  avg_rt ~ set_size_c * distractor_type * target_present + (1 | sona_id),
   data = rt_model_data
 )
 
-# Overall fixed effects — which factors drive RT?
+# Overall fixed effects: which factors drive RT?
 car::Anova(rt_lmer, type = 3)
 
 # Follow-up: RT slope across set size within each distractor x target cell.
-# Captures search efficiency per condition (ms added per additional item).
 emtrends(
   rt_lmer,
   specs = ~ target_present | distractor_type,
-  var   = "set_size_num"
+  var   = "set_size_c"
 ) -> rt_trends
 
 summary(rt_trends)
@@ -269,8 +287,8 @@ local({
     ) +
     facet_wrap(~distractor_type, labeller = distractor_labels) +
     scale_x_continuous(breaks = c(3, 6, 9)) +
-    scale_y_continuous(limits = c(0, vs_data$collapsed_stats$gMean +
-                                    2 * vs_data$collapsed_stats$gSD)) +
+    coord_cartesian(ylim = c(0, vs_data$collapsed_stats$gMean +
+                               2 * vs_data$collapsed_stats$gSD)) +
     labs(
       title    = "Slow Correct Decisions when Target Absent:",
       subtitle = "Set Size and Conjunction Effects",
@@ -533,8 +551,7 @@ local({
           `red_circle`    = "Red Circle"
         ))
       ) +
-      scale_y_continuous(limits = c(0, mean(vs_data$full_data_subj$avg_rt) +
-                                      2 * sd(vs_data$full_data_subj$avg_rt))) +
+      expand_limits(y = 0) +
       labs(
         title    = paste("Response Time by", x_label),
         subtitle = paste("Relationship between", x_label, "and visual search RT"),
@@ -777,9 +794,6 @@ plot_saver(
 )
 
 # Mindfulness × RT Test -------------------------------------------------------
-
-# Sum-to-zero contrasts so Type III main effects are interpretable
-options(contrasts = c("contr.sum", "contr.poly"))
 
 # Model data: one row per subject x distractor x target; factors set;
 # mindfulness grand-mean centered (on subjects, not rows)
